@@ -1,0 +1,36 @@
+﻿<div class="options-menu-strip">
+    <div class="oms-item">
+        <input type="file" @onchange="LoadFiles" disabled="@IsLoading" multiple />
+        <i class="las la-plus-circle"></i>
+    </div>
+    <div class="oms-item">
+        <input type="file" @onchange="LoadFiles" disabled="@IsLoading" multiple webkitdirectory directory />
+        <i class="las la-folder-plus"></i>
+    </div>
+    <button type="button"><i class="las la-info-circle"></i></button>
+    <button type="button"><i class="las la-door-open"></i></button>
+</div>
+
+@code {
+
+    bool IsLoading = false;
+
+    void LoadFiles()
+    {
+        if (!IsLoading)
+        {
+            LockState(true);
+
+
+
+            LockState(false);
+        }
+    }
+
+    void LockState(bool state)
+    {
+        IsLoading = state;
+
+        StateHasChanged();
+    }
+}

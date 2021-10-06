@@ -1,0 +1,28 @@
+﻿@using Helpers
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject ToolbarExpandNotifier TEN
+
+<div class="main @(IsToolbarExpanded ? "expand": "")" role="main">
+    @Body
+</div>
+
+@code {
+    bool IsToolbarExpanded = false;
+
+    protected override void OnInitialized()
+    {
+        TEN.OnExpandToggle += ToggleExpand;
+    }
+
+    void ToggleExpand(bool expand)
+    {
+        IsToolbarExpanded = expand;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        TEN.OnExpandToggle -= ToggleExpand;
+    }
+}

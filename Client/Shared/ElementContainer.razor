@@ -1,0 +1,23 @@
+﻿@using Helpers
+@*@implements IDisposable*@
+@inject IJSRuntime JSRuntime
+@inject ToolbarExpandNotifier TEN
+
+<div class="element-container">
+    <div class="element-container--inner">
+        @ChildContent
+    </div>
+</div>
+
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("ZHelpers.InitElementContainerScrollbars", ".element-container--inner");
+        }
+    }
+}

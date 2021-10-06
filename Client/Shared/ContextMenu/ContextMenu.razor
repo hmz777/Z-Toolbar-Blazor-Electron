@@ -1,0 +1,45 @@
+﻿<div class="context-menu @(Visible ? "visible" : "")" style="left:@($"{X}px");top:@($"{Y}px")" id="@MenuId">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public string MenuId { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    public double X { get; set; }
+    public double Y { get; set; }
+    bool Visible = false;
+
+    [JSInvokable]
+    public void Show()
+    {
+        if (!Visible)
+        {
+            Visible = true;
+
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public void Hide()
+    {
+        if (Visible)
+        {
+            Visible = false;
+
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public void UpdatePosition(double x, double y)
+    {
+        Console.WriteLine($"{x}/{y}");
+
+        X = x;
+        Y = y;
+
+        StateHasChanged();
+    }
+}

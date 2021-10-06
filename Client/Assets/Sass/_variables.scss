@@ -1,0 +1,36 @@
+﻿/*Font*/
+$font-family: "Century Gothic";
+$font-size: 1em;
+
+/*Colors*/
+$back-color: #ff8c00; /*#252526*/
+
+/*Window*/
+$window-border-radius: 4.2em;
+
+
+/*Content Container*/
+$cont-back-color: #1E1E1E;
+$cont-border-radius: 3em;
+
+/*Element*/
+$el-border-radius: 1em;
+$el-back-color: #252526;
+$el-hover-back-color: #2D2D30;
+
+/*Element Info*/
+$eli-back-color: #1E1E1E;
+$eli-border-radius: 1em;
+
+/*Context Menu*/
+$context-menu-back-color: #1E1E1E;
+
+/*Easing*/
+$easing: cubic-bezier(0.65, 0, 0.35, 1);
+
+/*Options Menu Strip*/
+$oms-border-color: #ff8c00;
+$oms-back-color: #252526;
+
+/*Line Awesome*/
+$la-font-path : "../lib/line-awesome/dist/line-awesome/fonts";

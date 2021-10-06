@@ -1,0 +1,14 @@
+﻿@using Helpers
+@inject HttpClient Http
+@inject ToolbarExpandNotifier ExpandNotifier
+
+<div class="element" @oncontextmenu="OnContextMenu" @oncontextmenu:preventDefault="true">
+    <img src="/img/app-default.png" alt="App Icon" />
+    <p>@Name</p>
+</div>
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnContextMenu { get; set; }
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Path { get; set; }
+}

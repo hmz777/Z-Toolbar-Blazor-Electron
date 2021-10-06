@@ -1,0 +1,45 @@
+﻿body {
+    background: transparent;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    #app {
+        background: transparent;
+        width: 100%;
+        height: 100%;
+        padding: 1em 0 1em 1em;
+        display: flex;
+        align-items: flex-end;
+
+        .main {
+            border-top-left-radius: $window-border-radius;
+            border-bottom-left-radius: $window-border-radius;
+            background: $back-color;
+            width: 10em;
+            height: 100%;
+            display: flex;
+            margin-left: auto;
+            padding: 0 0 0 .8em;
+            -webkit-box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.45);
+            -moz-box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.45);
+            box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.45);
+            transition: all 0.3s $easing;
+
+            &.expand {
+                width: 100%;
+            }
+
+            .main-content {
+                width: 100%;
+                height: 100%;
+                background: $cont-back-color;
+                border-top-left-radius: $cont-border-radius;
+                border-bottom-left-radius: $cont-border-radius;
+                padding: 1em 0;
+                display: flex;
+            }
+        }
+    }
+}

@@ -1,0 +1,77 @@
+﻿@using BlazorElectronToolbar.Client.Shared.ContextMenu
+@using Helpers
+@using BlazorElectronToolbar.Shared
+@using System.Text.Json;
+@inject IJSRuntime JsRuntime
+@inject IToolbarCommandControl ToolbarCommandControl
+@page "/"
+
+<div class="main-content" id="main-content">
+    <ElementContainer>
+        <div class="content">
+            @for (int i = 0; i < 10; i++)
+            {
+                <Element OnContextMenu="ToggleContextMenu" Name="@TestAppName"></Element>
+            }
+        </div>
+    </ElementContainer>
+</div>
+
+@*<OptionsMenuStrip />*@
+
+<ContextMenu @ref="ContextMenu" MenuId="menu-1">
+    <CMItem OnClick="Handler">Run</CMItem>
+    <CMItem OnClick="Handler">Show info</CMItem>
+    <CMItem OnClick="Handler">Remove</CMItem>
+    <CMItem OnClick="Handler">About the developer</CMItem>
+</ContextMenu>
+
+@code {
+
+    IJSObjectReference ContextMenuModule;
+    ContextMenu ContextMenu;
+
+    string TestAppName = "Test App";
+
+    protected async override Task OnInitializedAsync()
+    {
+        ContextMenuModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/modules/contextmenu.js");
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            await ContextMenuModule.InvokeVoidAsync("InitCM", DotNetObjectReference.Create(ContextMenu));
+            await JsRuntime.InvokeVoidAsync("ZHelpers.AttachItemDropEvent", DotNetObjectReference.Create(this));
+        }
+    }
+
+    void ToggleContextMenu(MouseEventArgs e)
+    {
+        ContextMenu.UpdatePosition(e.ClientX, e.ClientY);
+        ContextMenu.Show();
+    }
+
+    [JSInvokable]
+    public void ItemDropHandler(string JsonData, bool HasMultipleFiles)
+    {
+        if (HasMultipleFiles)
+        {
+            var Files = JsonSerializer.Deserialize<List<FileDescriptor>>(JsonData);
+        }
+        else
+        {
+            var File = JsonSerializer.Deserialize<FileDescriptor>(JsonData);
+        }
+
+        TestAppName = "Done!";
+        StateHasChanged();
+        Console.WriteLine("Done!");
+    }
+
+    void Handler()
+    {
+        Console.WriteLine("Test!");
+    }
+}
