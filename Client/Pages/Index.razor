@@ -9,69 +9,104 @@
 <div class="main-content" id="main-content">
     <ElementContainer>
         <div class="content">
-            @for (int i = 0; i < 10; i++)
+            @if (Files.Count > 0)
             {
-                <Element OnContextMenu="ToggleContextMenu" Name="@TestAppName"></Element>
+                foreach (var File in Files)
+                {
+                    <Element OnContextMenu="ToggleContextMenu" ItemId="@File.FileId" Name="@File.Name" Path="@File.Path"></Element>
+                }
             }
         </div>
     </ElementContainer>
 </div>
 
-@*<OptionsMenuStrip />*@
-
 <ContextMenu @ref="ContextMenu" MenuId="menu-1">
-    <CMItem OnClick="Handler">Run</CMItem>
-    <CMItem OnClick="Handler">Show info</CMItem>
-    <CMItem OnClick="Handler">Remove</CMItem>
-    <CMItem OnClick="Handler">About the developer</CMItem>
+    <CMItem OnClick="Run">Run</CMItem>
+    <CMItem OnClick="ShowInfo">Show info</CMItem>
+    <CMItem OnClick="Remove">Remove</CMItem>
+    <CMItem OnClick="ToolbarCommandControl.OpenDevTools">Open dev tools</CMItem>
+    <CMItem OnClick="ToolbarCommandControl.AboutDialog">About the developer</CMItem>
 </ContextMenu>
 
 @code {
 
     IJSObjectReference ContextMenuModule;
     ContextMenu ContextMenu;
+    List<FileDescriptor> Files = new List<FileDescriptor>();
+    int CurrentCount = 0;
 
-    string TestAppName = "Test App";
-
-    protected async override Task OnInitializedAsync()
-    {
-        ContextMenuModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/modules/contextmenu.js");
-    }
+    string ActiveItemId = null;
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (firstRender)
         {
+            ContextMenuModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/modules/contextmenu.js");
             await ContextMenuModule.InvokeVoidAsync("InitCM", DotNetObjectReference.Create(ContextMenu));
             await JsRuntime.InvokeVoidAsync("ZHelpers.AttachItemDropEvent", DotNetObjectReference.Create(this));
         }
     }
 
-    void ToggleContextMenu(MouseEventArgs e)
+    void ToggleContextMenu(CMEventArgs e)
     {
-        ContextMenu.UpdatePosition(e.ClientX, e.ClientY);
+        ActiveItemId = e.ItemId;
+        ContextMenu.UpdatePosition(e.MouseEventArgs.ClientX, e.MouseEventArgs.ClientY);
         ContextMenu.Show();
     }
 
     [JSInvokable]
-    public void ItemDropHandler(string JsonData, bool HasMultipleFiles)
+    public void ItemDropHandler(string JsonData)
     {
-        if (HasMultipleFiles)
+        var newFiles = JsonSerializer.Deserialize<FileDescriptor[]>(JsonData);
+
+        for (int i = 0; i < newFiles.Length; i++)
         {
-            var Files = JsonSerializer.Deserialize<List<FileDescriptor>>(JsonData);
-        }
-        else
-        {
-            var File = JsonSerializer.Deserialize<FileDescriptor>(JsonData);
+            if (!Files.Any(f => f.Name.Equals(newFiles[i].Name, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                newFiles[i].FileId = Guid.NewGuid().ToString();
+                Files.Add(newFiles[i]);
+            }
         }
 
-        TestAppName = "Done!";
-        StateHasChanged();
-        Console.WriteLine("Done!");
+        //Save changes to disk
+
+        if (Files.Count != CurrentCount)
+        {
+            CurrentCount = Files.Count;
+            StateHasChanged();
+        }
     }
 
-    void Handler()
+    void Run()
+    {
+        var File = Files.Where(f => f.FileId == ActiveItemId).FirstOrDefault();
+
+        if (File != null)
+        {
+            var res = ToolbarCommandControl.Run(File.Path);
+
+            if (res) //Make an error dialog instead
+            {
+                throw new Exception($"App {File.Name} failed to start!");
+            }
+        }
+    }
+
+    void ShowInfo()
     {
         Console.WriteLine("Test!");
+    }
+
+    async Task Remove()
+    {
+        var item = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+        if (item != null)
+        {
+            Files.Remove(item);
+            await ToolbarCommandControl.Remove(ActiveItemId);
+        }
+
+        //Save changes to disk
     }
 }
