@@ -95,5 +95,15 @@ namespace BlazorElectronToolbar.Server.Controllers
 
             return Ok(new { Width = ScreenSize.X, Height = ScreenSize.Y });
         }
+
+        [Route("OpenDevTools")]
+        [HttpGet]
+        public IActionResult OpenDevTools()
+        {
+            var window = Electron.WindowManager.BrowserWindows.First();
+            window.WebContents.OpenDevTools();
+
+            return Ok();
+        }
     }
 }
