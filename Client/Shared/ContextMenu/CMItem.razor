@@ -1,8 +1,13 @@
 ﻿<div class="cm-item" @onclick="OnClick">
-    <button type="button" @onclick="OnClick">@ChildContent</button>
+    <button type="button" @onclick="ButtonClick">@ChildContent</button>
 </div>
 
 @code {
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public EventCallback OnClick { get; set; }
+
+    async Task ButtonClick()
+    {
+        await OnClick.InvokeAsync();
+    }
 }
