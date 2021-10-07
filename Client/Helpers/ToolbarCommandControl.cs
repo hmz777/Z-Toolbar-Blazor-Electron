@@ -1,8 +1,10 @@
 ﻿using BlazorElectronToolbar.Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -59,6 +61,34 @@ namespace BlazorElectronToolbar.Client.Helpers
             var json = await res.Content.ReadAsStringAsync();
 
             return JsonSerializer.Deserialize<ScreenSize>(json);
+        }
+
+        public async Task OpenDevTools()
+        {
+            await httpClient.GetAsync("/OpenDevTools");
+        }
+
+        public async Task<bool> CreateFileIcon(string ItemId, string Path)
+        {
+            var res = await httpClient.PostAsJsonAsync("/CreateFileIcon", new FileModel { FileId = ItemId, Path = Path });
+            return res.IsSuccessStatusCode;
+        }
+
+        public bool Run(string Path)
+        {
+            var P = Process.Start(Path);
+
+            return P != null;
+        }
+
+        public async Task AboutDialog()
+        {
+            await httpClient.GetAsync("/About");
+        }
+
+        public async Task Remove(string FileId)
+        {
+            await httpClient.PostAsJsonAsync("/RemoveIcon", FileId);
         }
     }
 }
