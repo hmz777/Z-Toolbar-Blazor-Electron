@@ -14,7 +14,7 @@ namespace BlazorElectronToolbar.Client.Helpers
         public Task<ScreenSize> GetScaledScreenSize();
         public Task OpenDevTools();
         public Task<bool> CreateFileIcon(string ItemId, string Path);
-        public bool Run(string Path);
+        public Task<bool> Run(string Path);
         public Task Remove(string FileId);
         public Task AboutDialog();
 

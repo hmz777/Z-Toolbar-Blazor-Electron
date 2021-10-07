@@ -77,15 +77,15 @@
         }
     }
 
-    void Run()
+    async Task Run()
     {
         var File = Files.Where(f => f.FileId == ActiveItemId).FirstOrDefault();
 
         if (File != null)
         {
-            var res = ToolbarCommandControl.Run(File.Path);
+            var res = await ToolbarCommandControl.Run(File.Path);
 
-            if (res) //Make an error dialog instead
+            if (!res) //Make an error dialog instead
             {
                 throw new Exception($"App {File.Name} failed to start!");
             }

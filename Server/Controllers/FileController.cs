@@ -1,8 +1,10 @@
-﻿using BlazorElectronToolbar.Shared;
+﻿using BlazorElectronToolbar.Server.Helpers;
+using BlazorElectronToolbar.Shared;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -64,6 +66,30 @@ namespace BlazorElectronToolbar.Server.Controllers
                 }
 
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Route("LaunchFile")]
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public IActionResult LaunchFile([FromBody] string Path)
+        {
+            try
+            {
+                var PP = new Process { StartInfo = new ProcessStartInfo(Path) { UseShellExecute = true } };
+                var res = PP.Start();
+
+                if (res)
+                {
+                    PP.Dispose();
+                    return Ok(true);
+                }
+
+                return Ok(false);
             }
             catch (Exception ex)
             {

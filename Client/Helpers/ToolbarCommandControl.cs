@@ -58,9 +58,7 @@ namespace BlazorElectronToolbar.Client.Helpers
         public async Task<ScreenSize> GetScaledScreenSize()
         {
             var res = await httpClient.GetAsync("/GetScaledScreenSize");
-            var json = await res.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<ScreenSize>(json);
+            return await res.Content.ReadFromJsonAsync<ScreenSize>();
         }
 
         public async Task OpenDevTools()
@@ -74,11 +72,11 @@ namespace BlazorElectronToolbar.Client.Helpers
             return res.IsSuccessStatusCode;
         }
 
-        public bool Run(string Path)
+        public async Task<bool> Run(string Path)
         {
-            var P = Process.Start(Path);
+            var res = await httpClient.PostAsJsonAsync("/LaunchFile", Path);
 
-            return P != null;
+            return await res.Content.ReadFromJsonAsync<bool>();
         }
 
         public async Task AboutDialog()
