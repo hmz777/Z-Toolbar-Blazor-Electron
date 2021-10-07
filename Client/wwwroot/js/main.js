@@ -14,13 +14,13 @@
             e.preventDefault();
             e.stopPropagation();
 
-            var NamesPaths = {};
+            var NamesPaths = [];
 
             for (const f of e.dataTransfer.files) {
-                NamesPaths[f.name] = f.path;
+                NamesPaths.push({ Name: f.name, Path: f.path });
             }
 
-            handlerRef.invokeMethodAsync("ItemDropHandler", JSON.stringify(NamesPaths), (Object.keys(e.dataTransfer.files).length > 1) ? true : false);
+            handlerRef.invokeMethodAsync("ItemDropHandler", JSON.stringify(NamesPaths));
         });
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
