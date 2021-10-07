@@ -1,14 +1,44 @@
 ﻿@using Helpers
-@inject HttpClient Http
+@using Shared.ContextMenu
+@inject IToolbarCommandControl ToolbarCommandControl
 @inject ToolbarExpandNotifier ExpandNotifier
 
-<div class="element" @oncontextmenu="OnContextMenu" @oncontextmenu:preventDefault="true">
-    <img src="/img/app-default.png" alt="App Icon" />
+<div class="element" @oncontextmenu="OnRightClick" @oncontextmenu:preventDefault="true">
+    <img src="/img/@IconPath" alt="@Name icon" />
     <p>@Name</p>
 </div>
 
 @code {
-    [Parameter] public EventCallback<MouseEventArgs> OnContextMenu { get; set; }
+    [Parameter] public EventCallback<CMEventArgs> OnContextMenu { get; set; }
+    [Parameter] public string ItemId { get; set; }
     [Parameter] public string Name { get; set; }
     [Parameter] public string Path { get; set; }
+
+    string IconPath = "app-default.png"; //Default icon
+    bool IconCreated = false;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !IconCreated)
+        {
+            await CreateIcon();
+        }
+    }
+
+    async Task OnRightClick(MouseEventArgs e)
+    {
+        await OnContextMenu.InvokeAsync(new CMEventArgs { MouseEventArgs = e, ItemId = ItemId });
+    }
+
+    async Task CreateIcon()
+    {
+        var res = await ToolbarCommandControl.CreateFileIcon(ItemId, Path);
+
+        if (res)
+        {
+            IconPath = ItemId + ".png";
+            IconCreated = true;
+            StateHasChanged();
+        }
+    }
 }
