@@ -88,5 +88,12 @@ namespace BlazorElectronToolbar.Client.Helpers
         {
             await httpClient.PostAsJsonAsync("/RemoveIcon", FileId);
         }
+
+        public async Task<AccentColor> GetWindowsAccentColor()
+        {
+            var color = await httpClient.GetFromJsonAsync<AccentColor>("/GetWindowsAccentColor");
+
+            return color;
+        }
     }
 }
