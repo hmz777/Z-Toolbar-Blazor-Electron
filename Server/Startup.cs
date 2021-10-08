@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlazorElectronToolbar.Server
 {
@@ -25,6 +26,7 @@ namespace BlazorElectronToolbar.Server
         public Rectangle ScreenSize { get; set; }
         public int WindowHeight { get; set; }
         public int WindowWidth { get; set; }
+        public string HotKeyCombination { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -75,6 +77,7 @@ namespace BlazorElectronToolbar.Server
             WindowWidth = Configuration.GetValue<int>("Window:Width");
             WindowHeight = Configuration.GetValue<int>("Window:Height");
             HideOffset = Configuration.GetValue<int>("Window:HideOffset");
+            HotKeyCombination = Configuration.GetValue<string>("Window:HotKeyCombination");
 
             MainWindow = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
             {
@@ -82,10 +85,6 @@ namespace BlazorElectronToolbar.Server
                 MaxWidth = ScreenSize.Width / 2,
                 MinHeight = WindowHeight,
                 MaxHeight = WindowHeight,
-                //Width = WindowWidth,
-                //Height = WindowHeight,
-                //X = ScreenSize.Width - WindowWidth,
-                //Y = (ScreenSize.Height - WindowHeight) / 2,
                 Show = false,
                 Frame = false,
                 TitleBarStyle = TitleBarStyle.hidden,
@@ -98,19 +97,14 @@ namespace BlazorElectronToolbar.Server
                 Transparent = true
             });
 
-            //MainWindow.OnFocus += OnFocus;
-            //MainWindow.OnBlur += OnLostFocus;
+            MainWindow.OnBlur += OnLostFocus;
 
+            Electron.App.Ready += OnReady;
+            Electron.App.WillQuit += WillQuit;
 
             await MainWindow.WebContents.Session.ClearCacheAsync();
 
-            MainWindow.SetBounds(new Rectangle
-            {
-                Width = WindowWidth,
-                Height = WindowHeight,
-                X = ScreenSize.Width - WindowWidth,
-                Y = (ScreenSize.Height - WindowHeight) / 2,
-            });
+            RestoreToolbarDefaultPosition();
 
             MainWindow.OnReadyToShow += () => MainWindow.Show();
             MainWindow.SetTitle(Configuration.GetValue<string>("AppInfo:AppTitle"));
@@ -118,16 +112,44 @@ namespace BlazorElectronToolbar.Server
             MainWindow.WebContents.OpenDevTools();
         }
 
-        public async void OnFocus()
+        public void OnReady()
         {
-            var pos = await MainWindow.GetPositionAsync();
-            MainWindow.SetPosition((ScreenSize.Width - WindowWidth), pos[1]);
+            Electron.GlobalShortcut.Register(HotKeyCombination, OnHotKeyTrigger);
+        }
+
+        public Task WillQuit(QuitEventArgs quitEventArgs)
+        {
+            Electron.GlobalShortcut.UnregisterAll();
+            return Task.CompletedTask;
+        }
+
+        public void RestoreToolbarDefaultPosition()
+        {
+            MainWindow.SetBounds(new Rectangle
+            {
+                Width = WindowWidth,
+                Height = WindowHeight,
+                X = ScreenSize.Width - WindowWidth,
+                Y = (ScreenSize.Height - WindowHeight) / 2,
+            });
         }
 
         public async void OnLostFocus()
         {
+            //Try to do some kind of animation trick to hide the toolbar
+
             var pos = await MainWindow.GetPositionAsync();
+
             MainWindow.SetPosition(ScreenSize.Width, pos[1]);
+        }
+
+        public void OnHotKeyTrigger()
+        {
+            //Try to do some kind of animation trick to show the toolbar
+
+            RestoreToolbarDefaultPosition();
+
+            Electron.App.Focus();
         }
     }
 }
