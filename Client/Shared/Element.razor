@@ -4,8 +4,11 @@
 @inject ToolbarExpandNotifier ExpandNotifier
 
 <div class="element" @oncontextmenu="OnRightClick" @oncontextmenu:preventDefault="true">
-    <img src="/img/@IconPath" alt="@Name icon" />
-    <p>@Name</p>
+    <Tooltip>@Name</Tooltip>
+    <button type="button" @onclick="Run">
+        <img src="/img/@IconPath" alt="@Name icon" />
+        <p>@Name</p>
+    </button>
 </div>
 
 @code {
@@ -39,6 +42,16 @@
             IconPath = ItemId + ".png";
             IconCreated = true;
             StateHasChanged();
+        }
+    }
+
+    async Task Run()
+    {
+        var res = await ToolbarCommandControl.Run(Path);
+
+        if (!res) //Make an error dialog instead
+        {
+            throw new Exception($"App {Name} failed to start!");
         }
     }
 }
