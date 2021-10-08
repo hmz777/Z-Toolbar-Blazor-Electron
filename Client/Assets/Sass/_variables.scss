@@ -3,7 +3,7 @@ $font-family: "Century Gothic";
 $font-size: 1em;
 
 /*Colors*/
-$back-color: #ff8c00; /*#252526*/
+$back-color: #ff8c00; /*#252526  #ff8c00*/
 
 /*Window*/
 $window-border-radius: 4.2em;
@@ -24,6 +24,7 @@ $eli-border-radius: 1em;
 
 /*Context Menu*/
 $context-menu-back-color: #1E1E1E;
+$cm-item-hover-back-color: $back-color;
 
 /*Easing*/
 $easing: cubic-bezier(0.65, 0, 0.35, 1);
@@ -33,4 +34,9 @@ $oms-border-color: #ff8c00;
 $oms-back-color: #252526;
 
 /*Line Awesome*/
-$la-font-path : "../lib/line-awesome/dist/line-awesome/fonts";
+$la-font-path: "../lib/line-awesome/dist/line-awesome/fonts";
+
+/*Tooltips*/
+$tooltip-border-radius: .5em;
+$tooltip-back-color: $back-color;
+$tooltip-color: white;

@@ -15,6 +15,30 @@
     }
 }
 
+.tooltip {
+    position: absolute;
+    padding: .45em .45em .35em .45em;
+    border-radius: $tooltip-border-radius;
+    color: $tooltip-color;
+    Background: $tooltip-back-color;
+    bottom: -20%;
+    left: 50%;
+    text-align: center;
+    font-size: .7em;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .3s $easing;
+    z-index: 1;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+}
+
 .element-container {
     display: flex;
     flex-flow: row wrap;
@@ -43,23 +67,40 @@
             margin: 0 0 1em auto;
             border-radius: $el-border-radius;
             transition: background .3s ease-in-out;
-            overflow: hidden;
             justify-content: center;
+            position: relative;
 
-            img {
-                border-radius: $el-border-radius;
-                max-height: 100%;
-                width: 3.5em;
-                margin: 0 auto;
-                object-fit: contain;
+            &:hover {
+                .tooltip {
+                    visibility: visible;
+                    opacity: 1;
+                }
             }
 
-            p {
-                color: white;
-                max-width: 5em;
-                text-overflow: ellipsis;
-                font-size: .8em;
-                margin: .3em auto 0;
+            button {
+                background: none;
+                border: none;
+                padding: .5em;
+                width: 100%;
+                height: 100%;
+
+                img {
+                    border-radius: $el-border-radius;
+                    max-height: 100%;
+                    width: 3.5em;
+                    margin: 0 auto;
+                    object-fit: contain;
+                }
+
+                p {
+                    color: white;
+                    max-width: 100%;
+                    font-size: .8em;
+                    margin: .3em auto 0;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
             }
 
             &:hover {
@@ -96,15 +137,16 @@
             padding: .5em;
             color: white;
             border-radius: .5em;
-            transition: background .3s $easing, color .3s $easing;
+            transition: background .3s $easing;
             width: 100%;
             text-align: left;
+            position: relative;
+            font-size: .85em;
         }
 
         &:hover {
             button {
-                color: black;
-                background: lightgray;
+                background: $cm-item-hover-back-color;
             }
         }
     }
