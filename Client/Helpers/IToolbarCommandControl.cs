@@ -16,6 +16,7 @@ namespace BlazorElectronToolbar.Client.Helpers
         public Task<bool> CreateFileIcon(string ItemId, string Path);
         public Task<bool> Run(string Path);
         public Task Remove(string FileId);
+        public Task<AccentColor> GetWindowsAccentColor();
         public Task AboutDialog();
 
     }
