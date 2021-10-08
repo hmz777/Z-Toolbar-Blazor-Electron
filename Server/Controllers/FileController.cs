@@ -82,10 +82,10 @@ namespace BlazorElectronToolbar.Server.Controllers
             {
                 var PP = new Process { StartInfo = new ProcessStartInfo(Path) { UseShellExecute = true } };
                 var res = PP.Start();
+                PP.Dispose();
 
                 if (res)
-                {
-                    PP.Dispose();
+                {                   
                     return Ok(true);
                 }
 
