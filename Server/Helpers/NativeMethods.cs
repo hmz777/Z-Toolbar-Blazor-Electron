@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace BlazorElectronToolbar.Server.Helpers
 {
-    public class NativeMethods
+    public static class NativeMethods
     {
-        #region Display Methods
+        #region Display Logic
 
         const int ENUM_CURRENT_SETTINGS = -1;
 
@@ -27,7 +27,7 @@ namespace BlazorElectronToolbar.Server.Helpers
 
         #endregion
 
-        #region Icon Methods
+        #region Icon Logic
 
         internal const string IID_IImageList = "46EB5926-582E-4017-9FDF-E8998DAA0950";
         internal const string IID_IImageList2 = "192B9D83-50FC-457B-90A0-2B82A8B5DAE1";
@@ -63,6 +63,12 @@ namespace BlazorElectronToolbar.Server.Helpers
             uint cbFileInfo,
             uint uFlags
         );
+
+        #endregion
+
+        #region HotKey Logic
+
+
 
         #endregion
     }
