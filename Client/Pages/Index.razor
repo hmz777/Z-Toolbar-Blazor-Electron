@@ -37,6 +37,11 @@
 
     string ActiveItemId = null;
 
+    protected async override Task OnInitializedAsync()
+    {
+        Files = (await ToolbarCommandControl.LoadFiles())?.ToList() ?? Enumerable.Empty<FileDescriptor>().ToList();
+    }
+
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -55,7 +60,7 @@
     }
 
     [JSInvokable]
-    public void ItemDropHandler(string JsonData)
+    public async void ItemDropHandler(string JsonData)
     {
         var newFiles = JsonSerializer.Deserialize<FileDescriptor[]>(JsonData);
 
@@ -68,12 +73,16 @@
             }
         }
 
-        //Save changes to disk
-
         if (Files.Count != CurrentCount)
         {
+            await ToolbarCommandControl.SaveChanges(Files);
             CurrentCount = Files.Count;
             StateHasChanged();
+
+            foreach (var item in Files)
+            {
+                Console.WriteLine(item.Name);
+            }
         }
     }
 
@@ -105,8 +114,14 @@
         {
             Files.Remove(item);
             await ToolbarCommandControl.Remove(ActiveItemId);
-        }
+            await ToolbarCommandControl.SaveChanges(Files);
+            CurrentCount = Files.Count;
+            StateHasChanged();
 
-        //Save changes to disk
+            foreach (var file in Files)
+            {
+                Console.WriteLine(file.Name);
+            }
+        }
     }
 }

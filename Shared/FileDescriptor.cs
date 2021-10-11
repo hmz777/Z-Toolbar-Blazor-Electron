@@ -11,7 +11,6 @@ namespace BlazorElectronToolbar.Shared
     {
         public string Name { get; set; }
         public string Path { get; set; }
-        [JsonIgnore]
         public string FileId { get; set; }
     }
 }

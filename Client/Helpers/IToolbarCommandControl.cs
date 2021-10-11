@@ -17,6 +17,8 @@ namespace BlazorElectronToolbar.Client.Helpers
         public Task<bool> Run(string Path);
         public Task Remove(string FileId);
         public Task<AccentColor> GetWindowsAccentColor();
+        public Task SaveChanges(IEnumerable<FileDescriptor> Files);
+        public Task<IEnumerable<FileDescriptor>> LoadFiles();
         public Task AboutDialog();
 
     }

@@ -81,7 +81,7 @@ namespace BlazorElectronToolbar.Client.Helpers
 
         public async Task AboutDialog()
         {
-            await httpClient.GetAsync("/About");
+            await httpClient.GetAsync("/GoAbout");
         }
 
         public async Task Remove(string FileId)
@@ -94,6 +94,17 @@ namespace BlazorElectronToolbar.Client.Helpers
             var color = await httpClient.GetFromJsonAsync<AccentColor>("/GetWindowsAccentColor");
 
             return color;
+        }
+
+        public async Task SaveChanges(IEnumerable<FileDescriptor> Files)
+        {
+            await httpClient.PostAsJsonAsync("/SaveChanges", Files);
+        }
+
+        public async Task<IEnumerable<FileDescriptor>> LoadFiles()
+        {
+            var files = await httpClient.GetFromJsonAsync<IEnumerable<FileDescriptor>>("/LoadFiles");
+            return files;
         }
     }
 }
