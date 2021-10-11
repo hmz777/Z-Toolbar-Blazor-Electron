@@ -9,7 +9,7 @@
         });
     },
     AttachItemDropEvent: function (handlerRef) {
-        let target = document.getElementById("main-content");
+        let target = document.getElementById("main");
         target.addEventListener("drop", (e) => {
             e.preventDefault();
             e.stopPropagation();
