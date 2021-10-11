@@ -54,8 +54,6 @@
         overflow-y: auto;
         position: relative;
         margin: auto;
-        border-top-left-radius: $cont-border-radius;
-        border-bottom-left-radius: $cont-border-radius;
         padding-right: 1em;
 
         .element {
@@ -113,6 +111,33 @@
 .element-info {
     background: $eli-back-color;
     padding: 1em;
+    border-radius: $eli-border-radius;
+    color: white;
+
+    &--inner {
+        display: flex;
+        flex-flow: column wrap;
+    }
+
+    .info-sec {
+        display: block;
+
+        .label {
+            font-weight: bold;
+            position: relative;
+
+            &:after {
+                position: relative;
+                margin: 0 .2em;
+                content: ":";
+                display: inline-block;
+            }
+        }
+
+        .value {
+            font-weight: normal;
+        }
+    }
 }
 
 .context-menu {
