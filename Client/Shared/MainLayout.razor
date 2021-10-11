@@ -3,7 +3,7 @@
 @implements IDisposable
 @inject ToolbarExpandNotifier TEN
 
-<div class="main @(IsToolbarExpanded ? "expand": "")" role="main">
+<div class="main @(IsToolbarExpanded ? "expand": "")" id="main" role="main">
     @Body
 </div>
 

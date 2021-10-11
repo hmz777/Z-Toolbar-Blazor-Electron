@@ -1,8 +1,17 @@
-﻿<div class="element-info">
+﻿@using BlazorElectronToolbar.Shared
+@using Helpers
+@inject IToolbarCommandControl TEC
 
+<div class="element-info" id="element-info">
+    @foreach (var property in File?.GetType().GetProperties())
+    {
+        <div class="info-sec">
+            <span class="label">@property.Name</span>
+            <span class="value">@(property.GetValue(File) as string)</span>
+        </div>
+    }
 </div>
 
-
 @code {
-
+    [Parameter] public FileDescriptor File { get; set; }
 }

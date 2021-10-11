@@ -6,6 +6,16 @@
 @inject IToolbarCommandControl ToolbarCommandControl
 @page "/"
 
+@if (Expanded)
+{
+    <div class="side-content" id="side-content">
+        <button type="button" @onclick="HideInfo" title="Close" class="close-btn"><i class="las la-times-circle la-2x"></i></button>
+        <div class="side-content--inner">
+            <ElementInfo @ref="ElementInfo" File="RequestedFileInfo" />
+        </div>
+
+    </div>
+}
 <div class="main-content" id="main-content">
     <ElementContainer>
         <div class="content">
@@ -32,6 +42,11 @@
 
     IJSObjectReference ContextMenuModule;
     ContextMenu ContextMenu;
+
+    ElementInfo ElementInfo;
+    FileDescriptor RequestedFileInfo;
+    bool Expanded = false;
+
     List<FileDescriptor> Files = new List<FileDescriptor>();
     int CurrentCount = 0;
 
@@ -101,9 +116,25 @@
         }
     }
 
-    void ShowInfo()
+    async Task ShowInfo()
     {
-        Console.WriteLine("Test!");
+        RequestedFileInfo = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+        if (RequestedFileInfo != null)
+        {
+            await ToolbarCommandControl.Expand();
+            await Task.Delay(2000);
+
+            Expanded = true;
+            StateHasChanged();
+        }
+    }
+
+    async Task HideInfo()
+    {
+        Expanded = false;
+        StateHasChanged();
+        await ToolbarCommandControl.Retract();
     }
 
     async Task Remove()
