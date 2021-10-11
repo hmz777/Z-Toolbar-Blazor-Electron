@@ -81,10 +81,8 @@ namespace BlazorElectronToolbar.Server
 
             MainWindow = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
             {
-                MinWidth = WindowWidth,
-                MaxWidth = ScreenSize.Width / 2,
-                MinHeight = WindowHeight,
-                MaxHeight = WindowHeight,
+                Width = WindowWidth,
+                Height = WindowHeight,
                 Show = false,
                 Frame = false,
                 TitleBarStyle = TitleBarStyle.hidden,
@@ -104,12 +102,15 @@ namespace BlazorElectronToolbar.Server
 
             await MainWindow.WebContents.Session.ClearCacheAsync();
 
-            RestoreToolbarDefaultPosition();
-
-            MainWindow.OnReadyToShow += () => MainWindow.Show();
-            MainWindow.SetTitle(Configuration.GetValue<string>("AppInfo:AppTitle"));
-
-            MainWindow.WebContents.OpenDevTools();
+            MainWindow.OnReadyToShow += async () =>
+            {
+                await RestoreToolbarDefaultPosition(true);
+                MainWindow.SetTitle(Configuration.GetValue<string>("AppInfo:AppTitle"));
+                MainWindow.SetAlwaysOnTop(true);
+                MainWindow.SetVisibleOnAllWorkspaces(true);
+                MainWindow.WebContents.OpenDevTools();
+                MainWindow.Show();
+            };
         }
 
         public void OnReady()
@@ -123,15 +124,30 @@ namespace BlazorElectronToolbar.Server
             return Task.CompletedTask;
         }
 
-        public void RestoreToolbarDefaultPosition()
+        public async Task RestoreToolbarDefaultPosition(bool firstStart)
         {
-            MainWindow.SetBounds(new Rectangle
+            if (firstStart)
             {
-                Width = WindowWidth,
-                Height = WindowHeight,
-                X = ScreenSize.Width - WindowWidth,
-                Y = (ScreenSize.Height - WindowHeight) / 2,
-            });
+                MainWindow.SetBounds(new Rectangle
+                {
+                    Width = WindowWidth,
+                    Height = WindowHeight,
+                    X = ScreenSize.Width - WindowWidth,
+                    Y = (ScreenSize.Height - WindowHeight) / 2,
+                });
+            }
+            else
+            {
+                var size = await MainWindow.GetSizeAsync();
+
+                MainWindow.SetBounds(new Rectangle
+                {
+                    Width = size[0],
+                    Height = size[1],
+                    X = ScreenSize.Width - size[0],
+                    Y = (ScreenSize.Height - size[1]) / 2,
+                });
+            }
         }
 
         public async void OnLostFocus()
@@ -143,11 +159,11 @@ namespace BlazorElectronToolbar.Server
             MainWindow.SetPosition(ScreenSize.Width, pos[1]);
         }
 
-        public void OnHotKeyTrigger()
+        public async void OnHotKeyTrigger()
         {
             //Try to do some kind of animation trick to show the toolbar
 
-            RestoreToolbarDefaultPosition();
+            await RestoreToolbarDefaultPosition(false);
 
             Electron.App.Focus();
         }
