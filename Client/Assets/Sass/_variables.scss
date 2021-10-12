@@ -16,16 +16,16 @@ $cont-back-color: #1E1E1E;
 $cont-border-radius: 3em;
 
 /*Element*/
-$el-border-radius: 1em;
+$el-border-radius: 1.5em;
 $el-back-color: #252526;
 $el-hover-back-color: #2D2D30;
 
 /*Element Info*/
 $eli-back-color: $el-back-color;
-$eli-border-radius: 1em;
+$eli-border-radius: $el-border-radius;
 
 /*Context Menu*/
-$context-menu-back-color: #1E1E1E;
+$context-menu-back-color: #232324;
 $cm-item-hover-back-color: $accent-color;
 
 /*Easing*/

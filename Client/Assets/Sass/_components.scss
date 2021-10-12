@@ -113,6 +113,30 @@
     padding: 1em;
     border-radius: $eli-border-radius;
     color: white;
+    animation: FadeIn .5s $easing;
+
+    &#about-dialog {
+        background: $accent-color;
+        height: 100%;
+        word-break: break-word;
+
+        .info-data {
+            display: flex;
+            flex-flow: column wrap;
+            margin-bottom: .5em;
+        }
+
+        .social-links {
+            display: flex;
+            flex-flow: row wrap;
+
+            .link-icon {
+                color: white;
+                display: inline-block;
+                margin-right: 1em;
+            }
+        }
+    }
 
     &--inner {
         display: flex;
@@ -156,7 +180,7 @@
         display: block;
         border-radius: .5em;
 
-        button {
+        button, a {
             border: none;
             background: none;
             padding: .5em;

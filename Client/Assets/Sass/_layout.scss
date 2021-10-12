@@ -39,11 +39,11 @@
                 .main-content {
                     border-top-left-radius: 0;
                     border-bottom-left-radius: 0;
-                    width: 25%;
+                    width: 27%;
                 }
 
                 .side-content {
-                    width: 75%;
+                    width: 73%;
                 }
             }
 
@@ -62,19 +62,27 @@
                 border-top-left-radius: $window-border-radius;
                 border-bottom-left-radius: $window-border-radius;
                 background: $cont-back-color;
-                padding: 3em;
+                padding: 4em 1.5em;
                 position: relative;
                 width: 0;
+                display: flex;
 
                 .close-btn {
                     position: absolute;
-                    top: .5em;
+                    top: .7em;
                     right: 0;
                     font-weight: bold;
                     border: none;
                     background: none;
                     color: white;
+                    background: $el-back-color;
+                    padding: .5em;
+                    border-radius: $el-border-radius;
                 }
+            }
+
+            #about {
+                background: red;
             }
         }
     }
