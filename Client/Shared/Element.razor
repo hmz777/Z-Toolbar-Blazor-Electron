@@ -3,10 +3,10 @@
 @inject IToolbarCommandControl ToolbarCommandControl
 @inject ToolbarExpandNotifier ExpandNotifier
 
-<div class="element" @oncontextmenu="OnRightClick" @oncontextmenu:preventDefault="true">
+<div class="element" @oncontextmenu="OnRightClick" @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true">
     <Tooltip>@Name</Tooltip>
     <button type="button" @onclick="Run">
-        <img src="/img/@IconPath" alt="@Name icon" />
+        <img src="/img/@IconPath?@(new Random(1).Next(100,50000))" alt="@Name icon" />
         <p>@Name</p>
     </button>
 </div>
@@ -17,7 +17,7 @@
     [Parameter] public string Name { get; set; }
     [Parameter] public string Path { get; set; }
 
-    string IconPath = "app-default.png"; //Default icon
+    string IconPath = "app-default.png"; //Default icon in case we couldn't fetch the app icon.
     bool IconCreated = false;
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
