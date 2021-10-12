@@ -66,11 +66,11 @@ namespace BlazorElectronToolbar.Server
 
             if (HybridSupport.IsElectronActive)
             {
-                ElectronBootstrap();
+                ElectronBootstrap(env);
             }
         }
 
-        public async void ElectronBootstrap()
+        async void ElectronBootstrap(IWebHostEnvironment env)
         {
             ScreenSize = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
 
@@ -87,13 +87,17 @@ namespace BlazorElectronToolbar.Server
                 Frame = false,
                 TitleBarStyle = TitleBarStyle.hidden,
                 AutoHideMenuBar = true,
-                DarkTheme = true,
                 Resizable = false,
                 Maximizable = false,
                 Fullscreenable = false,
                 Movable = false,
-                Transparent = true
+                Transparent = true,
+                SkipTaskbar = true
             });
+
+            Electron.NativeTheme.SetThemeSource(ThemeSourceMode.System);
+
+            ConfigureTrayIcon(env);
 
             MainWindow.OnBlur += OnLostFocus;
 
@@ -113,18 +117,19 @@ namespace BlazorElectronToolbar.Server
             };
         }
 
-        public void OnReady()
+        void OnReady()
         {
             Electron.GlobalShortcut.Register(HotKeyCombination, OnHotKeyTrigger);
         }
 
-        public Task WillQuit(QuitEventArgs quitEventArgs)
+        Task WillQuit(QuitEventArgs quitEventArgs)
         {
             Electron.GlobalShortcut.UnregisterAll();
+            Electron.Tray.Destroy();
             return Task.CompletedTask;
         }
 
-        public async Task RestoreToolbarDefaultPosition(bool firstStart)
+        async Task RestoreToolbarDefaultPosition(bool firstStart)
         {
             if (firstStart)
             {
@@ -150,7 +155,7 @@ namespace BlazorElectronToolbar.Server
             }
         }
 
-        public async void OnLostFocus()
+        async void OnLostFocus()
         {
             //Try to do some kind of animation trick to hide the toolbar
 
@@ -159,13 +164,39 @@ namespace BlazorElectronToolbar.Server
             MainWindow.SetPosition(ScreenSize.Width, pos[1]);
         }
 
-        public async void OnHotKeyTrigger()
+        async void OnHotKeyTrigger()
         {
             //Try to do some kind of animation trick to show the toolbar
 
             await RestoreToolbarDefaultPosition(false);
 
             Electron.App.Focus();
+        }
+
+        async void ConfigureTrayIcon(IWebHostEnvironment env)
+        {
+            Electron.Tray.SetTitle("Z-Toolbar");
+            Electron.Tray.SetToolTip("Z-Toolbar");
+
+            var menu = new MenuItem[] {
+                new MenuItem
+                {
+                    Enabled = true,
+                    Label = "Exit",
+                    Role = MenuRole.quit,
+                    Visible = true
+                }
+            };
+
+            //Since chrome follows the system chosen theme, we could guess the system theme from the chrome theme.
+            if (await Electron.NativeTheme.ShouldUseDarkColorsAsync())
+            {
+                Electron.Tray.Show(Path.Combine(env.ContentRootPath, "Assets/app-icon-l.png"), menu);
+            }
+            else
+            {
+                Electron.Tray.Show(Path.Combine(env.ContentRootPath, "Assets/app-icon-d.png"), menu);
+            }
         }
     }
 }
