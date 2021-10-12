@@ -11,12 +11,12 @@
     <div class="side-content" id="side-content">
         <button type="button" @onclick="HideInfo" title="Close" class="close-btn"><i class="las la-times-circle la-2x"></i></button>
         <div class="side-content--inner">
-            <ElementInfo @ref="ElementInfo" File="RequestedFileInfo" />
+            <ElementInfo @ref="ElementInfo" File="RequestedFileInfo" IsAboutDialog="IsAboutDialog" AboutModel="AboutModel" />
         </div>
 
     </div>
 }
-<div class="main-content" id="main-content">
+<div class="main-content" id="main-content" @oncontextmenu="OnMainRightClick">
     <ElementContainer>
         <div class="content">
             @if (Files.Count > 0)
@@ -31,15 +31,20 @@
 </div>
 
 <ContextMenu @ref="ContextMenu" MenuId="menu-1">
-    <CMItem OnClick="Run">Run</CMItem>
-    <CMItem OnClick="ShowInfo">Show info</CMItem>
-    <CMItem OnClick="Remove">Remove</CMItem>
-    <CMItem OnClick="ToolbarCommandControl.OpenDevTools">Open dev tools</CMItem>
-    <CMItem OnClick="ToolbarCommandControl.AboutDialog">About the developer</CMItem>
+    @if (!string.IsNullOrEmpty(ActiveItemId))
+    {
+        <CMItem OnClick="Run">Run</CMItem>
+        <CMItem OnClick="ShowInfo">Show info</CMItem>
+        <CMItem OnClick="Remove">Remove</CMItem>
+    }
+    else
+    {
+        <CMItem OnClick="ToolbarCommandControl.OpenDevTools">Open DevTools</CMItem>
+        <CMItem OnClick="About">About</CMItem>
+    }
 </ContextMenu>
 
 @code {
-
     IJSObjectReference ContextMenuModule;
     ContextMenu ContextMenu;
 
@@ -51,6 +56,9 @@
     int CurrentCount = 0;
 
     string ActiveItemId = null;
+
+    bool IsAboutDialog = false;
+    AboutModel AboutModel;
 
     protected async override Task OnInitializedAsync()
     {
@@ -67,9 +75,20 @@
         }
     }
 
+    void OnMainRightClick(MouseEventArgs e)
+    {
+        Console.WriteLine("Main CM");
+        ActiveItemId = null;
+        StateHasChanged();
+        ContextMenu.UpdatePosition(e.ClientX, e.ClientY);
+        ContextMenu.Show();
+    }
+
     void ToggleContextMenu(CMEventArgs e)
     {
+        Console.WriteLine("Element CM");
         ActiveItemId = e.ItemId;
+        StateHasChanged();
         ContextMenu.UpdatePosition(e.MouseEventArgs.ClientX, e.MouseEventArgs.ClientY);
         ContextMenu.Show();
     }
@@ -93,11 +112,6 @@
             await ToolbarCommandControl.SaveChanges(Files);
             CurrentCount = Files.Count;
             StateHasChanged();
-
-            foreach (var item in Files)
-            {
-                Console.WriteLine(item.Name);
-            }
         }
     }
 
@@ -122,8 +136,9 @@
 
         if (RequestedFileInfo != null)
         {
+            IsAboutDialog = false;
             await ToolbarCommandControl.Expand();
-            await Task.Delay(2000);
+            await Task.Delay(200);
 
             Expanded = true;
             StateHasChanged();
@@ -148,11 +163,23 @@
             await ToolbarCommandControl.SaveChanges(Files);
             CurrentCount = Files.Count;
             StateHasChanged();
+        }
+    }
 
-            foreach (var file in Files)
-            {
-                Console.WriteLine(file.Name);
-            }
+    async Task About()
+    {
+        var aboutData = await ToolbarCommandControl.AboutDialog();
+
+        if (aboutData != null)
+        {
+            AboutModel = aboutData;
+            IsAboutDialog = true;
+
+            await ToolbarCommandControl.Expand();
+            await Task.Delay(200);
+
+            Expanded = true;
+            StateHasChanged();
         }
     }
 }

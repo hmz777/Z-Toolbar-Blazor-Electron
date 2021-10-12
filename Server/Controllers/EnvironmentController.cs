@@ -1,25 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BlazorElectronToolbar.Shared;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
 
 namespace BlazorElectronToolbar.Server.Controllers
 {
     [ApiController]
     public class EnvironmentController : ControllerBase
     {
-        //[Route("GetWindowsAccentColor")]
-        //[HttpGet]
-        //public IActionResult GetWindowsAccentColor()
-        //{
-        //    try
-        //    {
-        //        UISettings uISettings = new UISettings();
-        //        var color = uISettings.GetColorValue(UIColorType.Accent);
+        private readonly IConfiguration configuration;
 
-        //        return Ok(new { R = color.R, G = color.G, B = color.B, A = color.A });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message);
-        //    }
-        //}
+        public EnvironmentController(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
+        [Route("GetAboutData")]
+        [HttpGet]
+        public IActionResult GetAboutData()
+        {
+            try
+            {
+                var data = configuration.GetSection("AppInfo:Developer").Get<AboutModel>();
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

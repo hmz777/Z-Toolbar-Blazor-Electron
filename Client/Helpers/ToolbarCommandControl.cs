@@ -79,9 +79,11 @@ namespace BlazorElectronToolbar.Client.Helpers
             return await res.Content.ReadFromJsonAsync<bool>();
         }
 
-        public async Task AboutDialog()
+        public async Task<AboutModel> AboutDialog()
         {
-            await httpClient.GetAsync("/GoAbout");
+            var aboutData = await httpClient.GetFromJsonAsync<AboutModel>("/GetAboutData");
+
+            return aboutData;
         }
 
         public async Task Remove(string FileId)
