@@ -1,28 +1,35 @@
 ﻿@using Helpers
 @using Shared.ContextMenu
+@using BlazorElectronToolbar.Shared
 @inject IToolbarCommandControl ToolbarCommandControl
 @inject ToolbarExpandNotifier ExpandNotifier
 
 <div class="element" @oncontextmenu="OnRightClick" @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true">
-    <Tooltip>@Name</Tooltip>
+    <Tooltip>@File.Name</Tooltip>
     <button type="button" @onclick="Run">
-        <img src="/img/@IconPath?@(new Random(1).Next(100,50000))" alt="@Name icon" />
-        <p>@Name</p>
+        <img src="/img/@ActiveIcon?r=@(new Random(1).Next(100,50000))" alt="@File.Name icon" />
+        <p>@File.Name</p>
     </button>
 </div>
 
 @code {
     [Parameter] public EventCallback<CMEventArgs> OnContextMenu { get; set; }
-    [Parameter] public string ItemId { get; set; }
-    [Parameter] public string Name { get; set; }
-    [Parameter] public string Path { get; set; }
+    [Parameter] public FileDescriptor File { get; set; }
 
-    string IconPath = "app-default.png"; //Default icon in case we couldn't fetch the app icon.
-    bool IconCreated = false;
+    string FileIconPath = "app-default.png"; //Default icon in case we couldn't fetch the app icon.
+    string FolderIconPath = "folder-default.png"; //Default icon for folders.
+    string ActiveIcon;
+
+    bool FileIconCreated = false;
+
+    protected override void OnInitialized()
+    {
+        ActiveIcon = File.IsFolder ? FolderIconPath : FileIconPath;
+    }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !IconCreated)
+        if (firstRender && !FileIconCreated)
         {
             await CreateIcon();
         }
@@ -30,28 +37,31 @@
 
     async Task OnRightClick(MouseEventArgs e)
     {
-        await OnContextMenu.InvokeAsync(new CMEventArgs { MouseEventArgs = e, ItemId = ItemId });
+        await OnContextMenu.InvokeAsync(new CMEventArgs { MouseEventArgs = e, ItemId = File.FileId });
     }
 
     async Task CreateIcon()
     {
-        var res = await ToolbarCommandControl.CreateFileIcon(ItemId, Path);
-
-        if (res)
+        if (!File.IsFolder)
         {
-            IconPath = ItemId + ".png";
-            IconCreated = true;
-            StateHasChanged();
+            var res = await ToolbarCommandControl.CreateFileIcon(File.FileId, File.Path);
+
+            if (res)
+            {
+                ActiveIcon = File.FileId + ".png";
+                FileIconCreated = true;
+                StateHasChanged();
+            }
         }
     }
 
     async Task Run()
     {
-        var res = await ToolbarCommandControl.Run(Path);
+        var res = await ToolbarCommandControl.Run(File.Path);
 
         if (!res) //Make an error dialog instead
         {
-            throw new Exception($"App {Name} failed to start!");
+            throw new Exception($"App {File.Name} failed to start!");
         }
     }
 }

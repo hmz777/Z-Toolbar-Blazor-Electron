@@ -12,5 +12,6 @@ namespace BlazorElectronToolbar.Shared
         public string Name { get; set; }
         public string Path { get; set; }
         public string FileId { get; set; }
+        public bool IsFolder { get { return string.IsNullOrEmpty(System.IO.Path.GetFileName(this.Path)) || System.IO.Directory.Exists(this.Path); } }
     }
 }
