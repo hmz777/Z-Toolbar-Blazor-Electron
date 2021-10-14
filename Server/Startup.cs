@@ -98,6 +98,7 @@ namespace BlazorElectronToolbar.Server
             Electron.NativeTheme.SetThemeSource(ThemeSourceMode.System);
 
             ConfigureTrayIcon(env);
+            ConfigureStartup();
 
             MainWindow.OnBlur += OnLostFocus;
 
@@ -112,8 +113,14 @@ namespace BlazorElectronToolbar.Server
                 MainWindow.SetTitle(Configuration.GetValue<string>("AppInfo:AppTitle"));
                 MainWindow.SetAlwaysOnTop(true);
                 MainWindow.SetVisibleOnAllWorkspaces(true);
-                MainWindow.WebContents.OpenDevTools();
+
+                if (env.IsDevelopment())
+                {
+                    MainWindow.WebContents.OpenDevTools();
+                }
+
                 MainWindow.Show();
+                MainWindow.Blur();
             };
         }
 
@@ -197,6 +204,13 @@ namespace BlazorElectronToolbar.Server
             {
                 Electron.Tray.Show(Path.Combine(env.ContentRootPath, "Assets/app-icon-d.png"), menu);
             }
+        }
+
+        void ConfigureStartup()
+        {
+            var isStartupAllowed = Configuration.GetValue<bool>("Settings:Startup");
+
+            Electron.App.SetLoginItemSettings(new LoginSettings() { OpenAtLogin = isStartupAllowed });
         }
     }
 }
