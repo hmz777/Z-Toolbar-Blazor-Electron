@@ -22,10 +22,10 @@ namespace BlazorElectronToolbar.Server
 
         public IConfiguration Configuration { get; }
         public BrowserWindow MainWindow { get; set; }
-        public int HideOffset { get; set; }
-        public Rectangle ScreenSize { get; set; }
+        public Rectangle ScreenBounds { get; set; }
         public int WindowHeight { get; set; }
         public int WindowWidth { get; set; }
+        public int ExpandAmount { get; set; }
         public string HotKeyCombination { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -38,7 +38,7 @@ namespace BlazorElectronToolbar.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -66,23 +66,25 @@ namespace BlazorElectronToolbar.Server
 
             if (HybridSupport.IsElectronActive)
             {
-                ElectronBootstrap(env);
+                await ElectronBootstrap(env);
             }
         }
 
-        async void ElectronBootstrap(IWebHostEnvironment env)
+        async Task ElectronBootstrap(IWebHostEnvironment env)
         {
-            ScreenSize = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
+            ScreenBounds = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
 
             WindowWidth = Configuration.GetValue<int>("Window:Width");
             WindowHeight = Configuration.GetValue<int>("Window:Height");
-            HideOffset = Configuration.GetValue<int>("Window:HideOffset");
+            ExpandAmount = Configuration.GetValue<int>("Window:ExpandAmount");
             HotKeyCombination = Configuration.GetValue<string>("Window:HotKeyCombination");
 
             MainWindow = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
             {
                 Width = WindowWidth,
                 Height = WindowHeight,
+                X = ScreenBounds.Width - WindowWidth,
+                Y = (ScreenBounds.Height - WindowHeight) / 2,
                 Show = false,
                 Frame = false,
                 TitleBarStyle = TitleBarStyle.hidden,
@@ -92,15 +94,15 @@ namespace BlazorElectronToolbar.Server
                 Fullscreenable = false,
                 Movable = false,
                 Transparent = true,
-                SkipTaskbar = true
+                SkipTaskbar = false
             });
 
             Electron.NativeTheme.SetThemeSource(ThemeSourceMode.System);
 
-            ConfigureTrayIcon(env);
+            //await ConfigureTrayIcon(env);
             ConfigureStartup();
 
-            MainWindow.OnBlur += OnLostFocus;
+            //MainWindow.OnBlur += OnLostFocus;
 
             Electron.App.Ready += OnReady;
             Electron.App.WillQuit += WillQuit;
@@ -129,46 +131,13 @@ namespace BlazorElectronToolbar.Server
             Electron.GlobalShortcut.Register(HotKeyCombination, OnHotKeyTrigger);
         }
 
-        Task WillQuit(QuitEventArgs quitEventArgs)
-        {
-            Electron.GlobalShortcut.UnregisterAll();
-            Electron.Tray.Destroy();
-            return Task.CompletedTask;
-        }
-
-        async Task RestoreToolbarDefaultPosition(bool firstStart)
-        {
-            if (firstStart)
-            {
-                MainWindow.SetBounds(new Rectangle
-                {
-                    Width = WindowWidth,
-                    Height = WindowHeight,
-                    X = ScreenSize.Width - WindowWidth,
-                    Y = (ScreenSize.Height - WindowHeight) / 2,
-                });
-            }
-            else
-            {
-                var size = await MainWindow.GetSizeAsync();
-
-                MainWindow.SetBounds(new Rectangle
-                {
-                    Width = size[0],
-                    Height = size[1],
-                    X = ScreenSize.Width - size[0],
-                    Y = (ScreenSize.Height - size[1]) / 2,
-                });
-            }
-        }
-
         async void OnLostFocus()
         {
             //Try to do some kind of animation trick to hide the toolbar
 
             var pos = await MainWindow.GetPositionAsync();
 
-            MainWindow.SetPosition(ScreenSize.Width, pos[1]);
+            MainWindow.SetPosition(ScreenBounds.Width, pos[1]);
         }
 
         async void OnHotKeyTrigger()
@@ -180,7 +149,44 @@ namespace BlazorElectronToolbar.Server
             Electron.App.Focus();
         }
 
-        async void ConfigureTrayIcon(IWebHostEnvironment env)
+        Task WillQuit(QuitEventArgs quitEventArgs)
+        {
+            Electron.GlobalShortcut.UnregisterAll();
+
+            //There is a problem with Electron.Tray.IsDestroyedAsync()
+
+            Electron.Tray.Destroy();
+
+            return Task.CompletedTask;
+        }
+
+        async Task RestoreToolbarDefaultPosition(bool firstStart)
+        {
+            if (firstStart)
+            {
+                MainWindow.SetBounds(new Rectangle
+                {
+                    Width = WindowWidth,
+                    Height = WindowHeight,
+                    X = ScreenBounds.Width - WindowWidth,
+                    Y = (ScreenBounds.Height - WindowHeight) / 2,
+                }, true);
+            }
+            else
+            {
+                var WindowBounds = await MainWindow.GetBoundsAsync();
+
+                MainWindow.SetBounds(new Rectangle
+                {
+                    Width = WindowBounds.Width,
+                    Height = WindowBounds.Height,
+                    X = ScreenBounds.Width - WindowBounds.Width,
+                    Y = (ScreenBounds.Height - WindowBounds.Height) / 2,
+                }, true);
+            }
+        }
+
+        async Task ConfigureTrayIcon(IWebHostEnvironment env)
         {
             Electron.Tray.SetTitle("Z-Toolbar");
             Electron.Tray.SetToolTip("Z-Toolbar");
@@ -192,8 +198,7 @@ namespace BlazorElectronToolbar.Server
                     Label = "Exit",
                     Role = MenuRole.quit,
                     Visible = true
-                }
-            };
+                }};
 
             //Since chrome follows the system chosen theme, we could guess the system theme from the chrome theme.
             if (await Electron.NativeTheme.ShouldUseDarkColorsAsync())
