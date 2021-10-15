@@ -88,7 +88,8 @@ namespace BlazorElectronToolbar.Server.Controllers
                 var res = PP.Start();
                 PP.Dispose();
 
-                if (res)
+                //We return True if the process started for a file or if the path is a directory
+                if (res || Directory.Exists(Path))
                 {
                     return Ok(true);
                 }
