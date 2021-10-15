@@ -64,15 +64,18 @@
             background: $el-back-color;
             margin: 0 0 1em auto;
             border-radius: $el-border-radius;
-            transition: background .3s ease-in-out;
+            transition: background .3s $easing, transform .3s $easing, opacity .3s $easing;
             justify-content: center;
             position: relative;
+            animation: FadeUp .3s $easing;
 
             &:hover {
                 .tooltip {
                     visibility: visible;
                     opacity: 1;
                 }
+
+                background: $el-hover-back-color;
             }
 
             button {
@@ -83,7 +86,6 @@
                 height: 100%;
 
                 img {
-                    border-radius: $el-border-radius;
                     max-height: 100%;
                     width: 3.5em;
                     margin: 0 auto;
@@ -101,8 +103,51 @@
                 }
             }
 
-            &:hover {
-                background: $el-hover-back-color;
+            .check-state {
+                display: none;
+                position: absolute;
+                top: .5em;
+                left: .5em;
+                animation: FadeIn .3s $easing;
+                width: 1.5em;
+                height: 1.5em;
+                border-radius: .5em;
+                border: 2px solid white;
+                overflow: hidden;
+
+                &--checked {
+                    background: $accent-color;
+
+                    img {
+                        display: block;
+                    }
+                }
+
+                input {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    opacity: 0;
+                    z-index: 2;
+                }
+
+                img {
+                    display: none;
+                    animation: FadeIn .3s $easing;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    opacity: 0;
+                    z-index: 1;
+                }
+
+                &.visible {
+                    display: block;
+                }
             }
         }
     }
@@ -113,7 +158,7 @@
     padding: 1em;
     border-radius: $eli-border-radius;
     color: white;
-    animation: FadeIn .5s $easing;
+    animation: FadeUp .5s $easing;
 
     &#about-dialog {
         background: $accent-color;
