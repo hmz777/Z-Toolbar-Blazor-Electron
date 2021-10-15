@@ -147,5 +147,12 @@ namespace BlazorElectronToolbar.Server.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [Route("DirectoryOrFile")]
+        [HttpGet]
+        public IActionResult DirectoryOrFile(string Path)
+        {
+            return new JsonResult(System.IO.Directory.Exists(Path));
+        }
     }
 }

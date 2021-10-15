@@ -19,6 +19,12 @@ namespace BlazorElectronToolbar.Client.Helpers
         public Task<AccentColor> GetWindowsAccentColor();
         public Task SaveChanges(IEnumerable<FileDescriptor> Files);
         public Task<IEnumerable<FileDescriptor>> LoadFiles();
+        /// <summary>
+        /// Returns whether the path points to a file or directory.
+        /// </summary>
+        /// <param name="Path"></param>
+        /// <returns>True if directory, False if File</returns>
+        public Task<bool> DirectoryOrFile(string Path);
         public Task<AboutModel> AboutDialog();
     }
 }
