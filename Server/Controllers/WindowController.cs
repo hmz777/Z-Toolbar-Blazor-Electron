@@ -34,15 +34,15 @@ namespace BlazorElectronToolbar.Server.Controllers
                     var ExpandAmount = configuration.GetValue<int>("Window:ExpandAmount");
 
                     var window = Electron.WindowManager.BrowserWindows.First();
-                    var ScreenSize = (await Electron.Screen.GetPrimaryDisplayAsync()).Size;
+                    var ScreenBounds = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
 
                     window.SetBounds(new Rectangle
                     {
-                        X = ScreenSize.Width - (WindowWidth + ExpandAmount),
-                        Y = (ScreenSize.Height - WindowHeight) / 2,
+                        X = ScreenBounds.Width - (WindowWidth + ExpandAmount),
+                        Y = (ScreenBounds.Height - WindowHeight) / 2,
                         Width = WindowWidth + ExpandAmount,
                         Height = WindowHeight
-                    });
+                    }, true);
 
                     StateHelpers.ToolbarExpanded = true;
                 }
@@ -67,15 +67,15 @@ namespace BlazorElectronToolbar.Server.Controllers
                     var WindowHeight = configuration.GetValue<int>("Window:Height");
 
                     var window = Electron.WindowManager.BrowserWindows.First();
-                    var ScreenSize = (await Electron.Screen.GetPrimaryDisplayAsync()).Size;
+                    var ScreenBounds = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
 
                     window.SetBounds(new Rectangle
                     {
-                        X = ScreenSize.Width - WindowWidth,
-                        Y = (ScreenSize.Height - WindowHeight) / 2,
+                        X = ScreenBounds.Width - WindowWidth,
+                        Y = (ScreenBounds.Height - WindowHeight) / 2,
                         Width = WindowWidth,
                         Height = WindowHeight
-                    });
+                    }, true);
 
                     StateHelpers.ToolbarExpanded = false;
                 }
@@ -88,12 +88,14 @@ namespace BlazorElectronToolbar.Server.Controllers
             }
         }
 
-        [Route("GetScaledScreenSize")]
+        [Route("GetScaledScreenBounds")]
         [HttpGet]
-        public async Task<IActionResult> GetScaledScreenSize()
+        public async Task<IActionResult> GetScaledScreenBounds()
         {
-            var ScreenSize = (await Electron.Screen.GetPrimaryDisplayAsync()).Size;
-            return Ok(new { Width = ScreenSize.Width, Height = ScreenSize.Height });
+            //needs edits to bounds
+            var ScreenBounds = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
+
+            return Ok(new { Width = ScreenBounds.Width, Height = ScreenBounds.Height });
         }
 
         [Route("OpenDevTools")]
