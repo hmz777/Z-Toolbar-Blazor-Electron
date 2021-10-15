@@ -107,5 +107,28 @@ namespace BlazorElectronToolbar.Server.Controllers
 
             return Ok();
         }
+
+        [Route("ExitApp")]
+        [HttpGet]
+        public IActionResult ExitApp()
+        {
+            try
+            {
+                var MainWindow = Electron.WindowManager.BrowserWindows.First();
+
+                if (MainWindow != null)
+                {
+                    MainWindow.Close();
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 }

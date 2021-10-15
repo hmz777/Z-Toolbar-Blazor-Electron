@@ -1,4 +1,5 @@
 ﻿using BlazorElectronToolbar.Shared;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -55,9 +56,9 @@ namespace BlazorElectronToolbar.Client.Helpers
             }
         }
 
-        public async Task<ScreenSize> GetScaledScreenSize()
+        public async Task<ScreenSize> GetScaledScreenBounds()
         {
-            var res = await httpClient.GetAsync("/GetScaledScreenSize");
+            var res = await httpClient.GetAsync("/GetScaledScreenBounds");
             return await res.Content.ReadFromJsonAsync<ScreenSize>();
         }
 
@@ -107,6 +108,16 @@ namespace BlazorElectronToolbar.Client.Helpers
         {
             var files = await httpClient.GetFromJsonAsync<IEnumerable<FileDescriptor>>("/LoadFiles");
             return files;
+        }
+
+        public async Task<bool> DirectoryOrFile(string Path)
+        {
+            return await httpClient.GetFromJsonAsync<bool>(QueryHelpers.AddQueryString("/DirectoryOrFile", new Dictionary<string, string> { { "Path", Path } }));
+        }
+
+        public async Task ExitApp()
+        {
+            await httpClient.GetAsync("/ExitApp");
         }
     }
 }

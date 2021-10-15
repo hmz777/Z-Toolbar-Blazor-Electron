@@ -11,7 +11,7 @@ namespace BlazorElectronToolbar.Client.Helpers
     {
         public Task Expand();
         public Task Retract();
-        public Task<ScreenSize> GetScaledScreenSize();
+        public Task<ScreenSize> GetScaledScreenBounds();
         public Task OpenDevTools();
         public Task<bool> CreateFileIcon(string ItemId, string Path);
         public Task<bool> Run(string Path);
@@ -26,5 +26,6 @@ namespace BlazorElectronToolbar.Client.Helpers
         /// <returns>True if directory, False if File</returns>
         public Task<bool> DirectoryOrFile(string Path);
         public Task<AboutModel> AboutDialog();
+        public Task ExitApp();
     }
 }
