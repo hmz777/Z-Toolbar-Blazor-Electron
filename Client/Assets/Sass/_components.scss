@@ -55,99 +55,117 @@
         position: relative;
         margin: auto;
         padding-right: 1em;
+        border-top-left-radius: 2em;
+        border-bottom-left-radius: 2em;
 
-        .element {
-            display: flex;
-            flex-flow: column wrap;
-            width: 7em;
-            height: 7em;
-            background: $el-back-color;
-            margin: 0 0 1em auto;
-            border-radius: $el-border-radius;
-            transition: background .3s $easing, transform .3s $easing, opacity .3s $easing;
-            justify-content: center;
-            position: relative;
-            animation: FadeUp .3s $easing;
+        .content {
+            .element {
+                display: flex;
+                flex-flow: column wrap;
+                width: 7em;
+                height: 7em;
+                background: $el-back-color;
+                margin: 0 0 1em auto;
+                border-radius: $el-border-radius;
+                transition: background .3s $easing, transform .3s $easing, opacity .3s $easing;
+                justify-content: center;
+                position: relative;
+                animation: FadeUp .3s $easing;
 
-            &:hover {
-                .tooltip {
-                    visibility: visible;
-                    opacity: 1;
+                &:hover {
+                    .tooltip {
+                        visibility: visible;
+                        opacity: 1;
+                    }
+
+                    background: $el-hover-back-color;
                 }
 
-                background: $el-hover-back-color;
-            }
-
-            button {
-                background: none;
-                border: none;
-                padding: .5em;
-                width: 100%;
-                height: 100%;
-
-                img {
-                    max-height: 100%;
-                    width: 3.5em;
-                    margin: 0 auto;
-                    object-fit: contain;
-                }
-
-                p {
-                    color: white;
-                    max-width: 100%;
-                    font-size: .8em;
-                    margin: .3em auto 0;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-            }
-
-            .check-state {
-                display: none;
-                position: absolute;
-                top: .5em;
-                left: .5em;
-                animation: FadeIn .3s $easing;
-                width: 1.5em;
-                height: 1.5em;
-                border-radius: .5em;
-                border: 2px solid white;
-                overflow: hidden;
-
-                &--checked {
-                    background: $accent-color;
+                button {
+                    background: none;
+                    border: none;
+                    padding: .5em;
+                    width: 100%;
+                    height: 100%;
 
                     img {
-                        display: block;
+                        max-height: 100%;
+                        width: 3.5em;
+                        margin: 0 auto;
+                        object-fit: contain;
+                    }
+
+                    p {
+                        color: white;
+                        max-width: 100%;
+                        font-size: .8em;
+                        margin: .3em auto 0;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
                 }
 
-                input {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    bottom: 0;
-                    width: 100%;
-                    opacity: 0;
-                    z-index: 2;
-                }
-
-                img {
+                .check-state {
                     display: none;
-                    animation: FadeIn .3s $easing;
                     position: absolute;
-                    top: 0;
-                    left: 0;
-                    bottom: 0;
-                    width: 100%;
-                    opacity: 0;
-                    z-index: 1;
-                }
+                    top: .5em;
+                    left: .5em;
+                    animation: FadeIn .3s $easing;
+                    width: 1.3em;
+                    height: 1.3em;
+                    border-radius: .4em;
+                    border: 2px solid lightgray;
+                    overflow: hidden;
 
-                &.visible {
-                    display: block;
+                    &--checked {
+                        background: $accent-color;
+
+                        img {
+                            display: block;
+                        }
+                    }
+
+                    input {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        opacity: 0;
+                        z-index: 2;
+                    }
+
+                    img {
+                        display: none;
+                        animation: FadeIn .3s $easing;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        opacity: 0;
+                        z-index: 1;
+                    }
+
+                    &.visible {
+                        display: block;
+                    }
                 }
+            }
+        }
+
+        .placeholder-text {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            width: 100%;
+            text-align: center;
+            color: lightgray;
+
+            i {
+                display: block;
             }
         }
     }
