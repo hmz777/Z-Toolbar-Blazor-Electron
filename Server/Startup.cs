@@ -94,24 +94,27 @@ namespace BlazorElectronToolbar.Server
                 Fullscreenable = false,
                 Movable = false,
                 Transparent = true,
-                SkipTaskbar = false
+                SkipTaskbar = true
             });
 
             Electron.NativeTheme.SetThemeSource(ThemeSourceMode.System);
 
-            //await ConfigureTrayIcon(env);
-            ConfigureStartup();
+            if (!env.IsDevelopment())
+            {
+                await ConfigureTrayIcon(env);
+                ConfigureStartup();
+            }
 
-            //MainWindow.OnBlur += OnLostFocus;
+            MainWindow.OnBlur += OnLostFocus;
 
             Electron.App.Ready += OnReady;
             Electron.App.WillQuit += WillQuit;
 
             await MainWindow.WebContents.Session.ClearCacheAsync();
 
-            MainWindow.OnReadyToShow += async () =>
+            MainWindow.OnReadyToShow += () =>
             {
-                await RestoreToolbarDefaultPosition(true);
+                RestoreToolbarDefaultPosition(true);
                 MainWindow.SetTitle(Configuration.GetValue<string>("AppInfo:AppTitle"));
                 MainWindow.SetAlwaysOnTop(true);
                 MainWindow.SetVisibleOnAllWorkspaces(true);
@@ -140,11 +143,11 @@ namespace BlazorElectronToolbar.Server
             MainWindow.SetPosition(ScreenBounds.Width, pos[1]);
         }
 
-        async void OnHotKeyTrigger()
+        void OnHotKeyTrigger()
         {
             //Try to do some kind of animation trick to show the toolbar
 
-            await RestoreToolbarDefaultPosition(false);
+            RestoreToolbarDefaultPosition(false);
 
             Electron.App.Focus();
         }
@@ -160,9 +163,9 @@ namespace BlazorElectronToolbar.Server
             return Task.CompletedTask;
         }
 
-        async Task RestoreToolbarDefaultPosition(bool firstStart)
+        void RestoreToolbarDefaultPosition(bool firstStart)
         {
-            if (firstStart)
+            if (firstStart || !StateHelpers.ToolbarExpanded)
             {
                 MainWindow.SetBounds(new Rectangle
                 {
@@ -174,14 +177,12 @@ namespace BlazorElectronToolbar.Server
             }
             else
             {
-                var WindowBounds = await MainWindow.GetBoundsAsync();
-
                 MainWindow.SetBounds(new Rectangle
                 {
-                    Width = WindowBounds.Width,
-                    Height = WindowBounds.Height,
-                    X = ScreenBounds.Width - WindowBounds.Width,
-                    Y = (ScreenBounds.Height - WindowBounds.Height) / 2,
+                    Width = WindowWidth + ExpandAmount,
+                    Height = WindowHeight,
+                    X = ScreenBounds.Width - (WindowWidth + ExpandAmount),
+                    Y = (ScreenBounds.Height - WindowHeight) / 2,
                 }, true);
             }
         }
