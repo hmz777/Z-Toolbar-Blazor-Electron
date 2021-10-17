@@ -1,24 +1,7 @@
-﻿.edge {
-    height: 0;
-    position: absolute;
-    z-index: 1;
-    left: -1.7em;
-
-    &.upper-edge {
-        top: .8em;
-        transform: rotate(-45deg);
-    }
-
-    &.bottom-edge {
-        bottom: .8em;
-        transform: rotate(-135deg);
-    }
-}
-
-.tooltip {
+﻿.tooltip {
     position: absolute;
     padding: .45em .45em .35em .45em;
-    border-radius: $tooltip-border-radius;
+    border-radius: $tooltip-border-radius + 1em;
     color: $tooltip-color;
     Background: $tooltip-back-color;
     bottom: -20%;
@@ -28,7 +11,7 @@
     visibility: hidden;
     opacity: 0;
     transition: opacity .3s $easing;
-    z-index: 1;
+    z-index: 3;
     transform: translateX(-50%);
     width: 100%;
     max-width: 100%;
@@ -59,6 +42,10 @@
         border-bottom-left-radius: 2em;
 
         .content {
+            position: relative;
+            display: flex;
+            flex-flow: column wrap;
+
             .element {
                 display: flex;
                 flex-flow: column wrap;
@@ -87,6 +74,7 @@
                     padding: .5em;
                     width: 100%;
                     height: 100%;
+                    z-index: 1;
 
                     img {
                         max-height: 100%;
@@ -111,12 +99,38 @@
                     position: absolute;
                     top: .5em;
                     left: .5em;
-                    animation: FadeIn .3s $easing;
-                    width: 1.3em;
-                    height: 1.3em;
+                    animation: FadeIn .3s $easing forwards;
+                    width: 1.2em;
+                    height: 1.2em;
                     border-radius: .4em;
                     border: 2px solid lightgray;
                     overflow: hidden;
+                    transition: background .3s $easing;
+                    z-index: 1;
+
+                    input {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        height: 100%;
+                        opacity: 0;
+                        z-index: 2;
+                    }
+
+                    img {
+                        display: none;
+                        animation: FadeIn .3s $easing forwards;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        opacity: 0;
+                        z-index: 1;
+                        object-fit: contain;
+                    }
 
                     &--checked {
                         background: $accent-color;
@@ -126,46 +140,22 @@
                         }
                     }
 
-                    input {
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        bottom: 0;
-                        width: 100%;
-                        opacity: 0;
-                        z-index: 2;
-                    }
-
-                    img {
-                        display: none;
-                        animation: FadeIn .3s $easing;
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        bottom: 0;
-                        width: 100%;
-                        opacity: 0;
-                        z-index: 1;
-                    }
-
                     &.visible {
                         display: block;
                     }
                 }
             }
-        }
 
-        .placeholder-text {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%,-50%);
-            width: 100%;
-            text-align: center;
-            color: lightgray;
+            .placeholder-text {
+                position: absolute;
+                margin: auto;
+                width: 100%;
+                text-align: center;
+                color: lightgray;
 
-            i {
-                display: block;
+                i {
+                    display: block;
+                }
             }
         }
     }
@@ -174,14 +164,17 @@
 .element-info {
     background: $eli-back-color;
     padding: 1em;
+    margin-bottom: .5em;
     border-radius: $eli-border-radius;
     color: white;
-    animation: FadeUp .5s $easing;
+    animation: FadeUp .5s $easing forwards;
+    width: 100%;
 
     &#about-dialog {
         background: $accent-color;
         height: 100%;
         word-break: break-word;
+        margin-top: 2em;
 
         .info-data {
             display: flex;

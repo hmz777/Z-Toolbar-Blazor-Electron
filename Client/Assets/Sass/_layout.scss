@@ -62,22 +62,31 @@
                 border-top-left-radius: $window-border-radius;
                 border-bottom-left-radius: $window-border-radius;
                 background: $cont-back-color;
-                padding: 4em 1.5em;
                 position: relative;
                 width: 0;
                 display: flex;
+                padding: 1em 0 1em;
 
                 .close-btn {
                     position: absolute;
-                    top: .7em;
-                    right: 0;
+                    top: .5em;
+                    right: 1em;
                     font-weight: bold;
                     border: none;
                     background: none;
                     color: white;
-                    background: $el-back-color;
-                    padding: .5em;
+                    background: $accent-color;
+                    padding: .2em;
                     border-radius: $el-border-radius;
+                    z-index: 1;
+                }
+
+                .side-content--outer {
+                    overflow-y: auto;
+                    max-width: 100%;
+                    border-top-left-radius: $window-border-radius;
+                    border-bottom-left-radius: $window-border-radius;
+                    padding: 1em 1.1em;
                 }
             }
 
