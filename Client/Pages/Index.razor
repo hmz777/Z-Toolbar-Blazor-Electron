@@ -10,28 +10,59 @@
 {
     <div class="side-content" id="side-content">
         <button type="button" @onclick="HideInfo" title="Close" class="close-btn"><i class="las la-times-circle la-2x"></i></button>
-        <div class="side-content--inner">
-            <ElementInfo @ref="ElementInfo" File="RequestedFileInfo" IsAboutDialog="IsAboutDialog" AboutModel="AboutModel" />
+        <div class="side-content--outer">
+            <div class="side-content--inner">
+                @if (!IsAboutDialog)
+                {
+                    if (MultiInfo)
+                    {
+                        @foreach (var requestedFile in RequestedFilesForInfo)
+                        {
+                            <ElementInfo File="requestedFile" />
+                        }
+                    }
+                    else if (SingleInfo)
+                    {
+                        <ElementInfo File="RequestedFileForInfo" />
+                    }
+                }
+                else
+                {
+                    <AboutSection AboutModel="AboutModel" />
+                }
+            </div>
         </div>
-
     </div>
 }
-<div class="main-content" id="main-content" @oncontextmenu="OnMainRightClick">
+<div tabindex="0" class="main-content" id="main-content" @oncontextmenu="OnMainRightClick" @onkeydown="SelectionHandlerDown" @onkeyup="SelectionHandlerUp">
     <ElementContainer>
         <div class="content">
             @if (Files.Count > 0)
             {
-                foreach (var File in Files)
+                @foreach (var File in Files)
                 {
-                    <Element OnContextMenu="ToggleContextMenu" ItemId="@File.FileId" Name="@File.Name" Path="@File.Path"></Element>
+                    <Element @ref="Element" OnContextMenu="ToggleContextMenu" File="File" CheckedMode="CheckMode" CheckBoxCallback="ItemMultiselectHandler"></Element>
                 }
+            }
+            else
+            {
+                <p class="placeholder-text"><i class="las la-info-circle la-2x"></i> Drag and drop files or folders here.</p>
             }
         </div>
     </ElementContainer>
 </div>
 
 <ContextMenu @ref="ContextMenu" MenuId="menu-1">
-    @if (!string.IsNullOrEmpty(ActiveItemId))
+    @if (ActiveItemIds.Count > 0 && string.IsNullOrEmpty(ActiveItemId))
+    {
+        if (ActiveItemIds.Count == 1)
+        {
+            <CMItem OnClick="Run">Run</CMItem>
+        }
+        <CMItem OnClick="ShowInfo">Show info</CMItem>
+        <CMItem OnClick="Remove">Remove</CMItem>
+    }
+    else if (!string.IsNullOrEmpty(ActiveItemId) && ActiveItemIds.Count == 0)
     {
         <CMItem OnClick="Run">Run</CMItem>
         <CMItem OnClick="ShowInfo">Show info</CMItem>
@@ -49,21 +80,28 @@
     IJSObjectReference ContextMenuModule;
     ContextMenu ContextMenu;
 
-    ElementInfo ElementInfo;
-    FileDescriptor RequestedFileInfo;
     bool Expanded = false;
+    bool MultiInfo = false;
+    bool SingleInfo = false;
+    List<FileDescriptor> RequestedFilesForInfo = new List<FileDescriptor>();
+    FileDescriptor RequestedFileForInfo;
 
-    List<FileDescriptor> Files = new List<FileDescriptor>();
+    HashSet<FileDescriptor> Files = new HashSet<FileDescriptor>();
+    Element Element { set { Elements.Add(value); } }
+    List<Element> Elements = new List<Element>();
     int CurrentCount = 0;
 
-    string ActiveItemId = null;
+    HashSet<string> ActiveItemIds = new HashSet<string>();
+    string ActiveItemId;
+
+    bool CheckMode = false;
 
     bool IsAboutDialog = false;
     AboutModel AboutModel;
 
     protected async override Task OnInitializedAsync()
     {
-        Files = (await ToolbarCommandControl.LoadFiles())?.ToList() ?? Enumerable.Empty<FileDescriptor>().ToList();
+        Files = (await ToolbarCommandControl.LoadFiles())?.ToHashSet() ?? new HashSet<FileDescriptor>();
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -74,21 +112,65 @@
             await ContextMenuModule.InvokeVoidAsync("InitCM", DotNetObjectReference.Create(ContextMenu));
             await JsRuntime.InvokeVoidAsync("ZHelpers.AttachItemDropEvent", DotNetObjectReference.Create(this));
         }
+
+        if (Expanded)
+        {
+            await JsRuntime.InvokeVoidAsync("ZHelpers.InitElementContainerScrollbars", ".side-content--outer");
+        }
     }
 
     void OnMainRightClick(MouseEventArgs e)
     {
-        Console.WriteLine("Main CM");
         ActiveItemId = null;
+
+        if (ActiveItemIds.Count > 0)
+        {
+            ClearAllChecks();
+            ActiveItemIds.Clear();
+        }
+
         StateHasChanged();
         ContextMenu.UpdatePosition(e.ClientX, e.ClientY);
         ContextMenu.Show();
     }
 
+    void SelectionHandlerDown(KeyboardEventArgs e)
+    {
+        if (e.CtrlKey)
+        {
+            CheckMode = true;
+            StateHasChanged();
+        }
+    }
+
+    async Task SelectionHandlerUp(KeyboardEventArgs e)
+    {
+        if (CheckMode)
+        {
+            CheckMode = false;
+            StateHasChanged();
+            await JsRuntime.InvokeVoidAsync("ZHelpers.FocusElement", "#main-content");
+        }
+    }
+
+    void ItemMultiselectHandler(CMEventArgs e)
+    {
+        if (e.Checked)
+        {
+            Console.WriteLine($"item added {e.ItemId}");
+            ActiveItemIds.Add(e.ItemId);
+        }
+        else
+        {
+            Console.WriteLine($"item removed {e.ItemId}");
+            ActiveItemIds.Remove(e.ItemId);
+        }
+    }
+
     void ToggleContextMenu(CMEventArgs e)
     {
-        Console.WriteLine("Element CM");
-        ActiveItemId = e.ItemId;
+        ActiveItemId = ActiveItemIds.Count > 0 ? null : e.ItemId;
+
         StateHasChanged();
         ContextMenu.UpdatePosition(e.MouseEventArgs.ClientX, e.MouseEventArgs.ClientY);
         ContextMenu.Show();
@@ -118,7 +200,16 @@
 
     async Task Run()
     {
-        var File = Files.Where(f => f.FileId == ActiveItemId).FirstOrDefault();
+        FileDescriptor File = null;
+
+        if (ActiveItemIds.Count > 0)
+        {
+            File = Files.Where(f => f.FileId == ActiveItemIds.First()).FirstOrDefault();
+        }
+        else if (!string.IsNullOrEmpty(ActiveItemId))
+        {
+            File = Files.Where(f => f.FileId == ActiveItemId).FirstOrDefault();
+        }
 
         if (File != null)
         {
@@ -133,38 +224,72 @@
 
     async Task ShowInfo()
     {
-        RequestedFileInfo = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        IsAboutDialog = false;
 
-        if (RequestedFileInfo != null)
+        if (ActiveItemIds.Count > 0 && string.IsNullOrEmpty(ActiveItemId))
         {
-            IsAboutDialog = false;
-            await ToolbarCommandControl.Expand();
-            await Task.Delay(200);
-
-            Expanded = true;
-            StateHasChanged();
+            MultiInfo = true;
+            SingleInfo = false;
+            RequestedFilesForInfo = Files.Where(f => ActiveItemIds.Contains(f.FileId)).ToList();
         }
+        else if (!string.IsNullOrEmpty(ActiveItemId) && ActiveItemIds.Count == 0)
+        {
+            SingleInfo = true;
+            MultiInfo = false;
+            RequestedFileForInfo = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        }
+
+        await ToolbarCommandControl.Expand();
+        if (!Expanded)
+        {
+            await Task.Delay(200);
+        }
+
+        Expanded = true;
+        StateHasChanged();
     }
 
     async Task HideInfo()
     {
         Expanded = false;
+        IsAboutDialog = false;
+        MultiInfo = false;
+        SingleInfo = false;
         StateHasChanged();
         await ToolbarCommandControl.Retract();
     }
 
     async Task Remove()
     {
-        var item = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        FileDescriptor FileToRemove = null;
+        List<FileDescriptor> FilesToRemove = null;
 
-        if (item != null)
+        if (ActiveItemIds.Count > 0)
         {
-            Files.Remove(item);
-            await ToolbarCommandControl.Remove(ActiveItemId);
-            await ToolbarCommandControl.SaveChanges(Files);
-            CurrentCount = Files.Count;
-            StateHasChanged();
+            FilesToRemove = Files.Where(f => ActiveItemIds.Contains(f.FileId)).ToList();
         }
+        else if (!string.IsNullOrEmpty(ActiveItemId))
+        {
+            FileToRemove = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        }
+
+        if (FilesToRemove.Count > 0)
+        {
+            foreach (var file in FilesToRemove)
+            {
+                Files.Remove(file);
+                await ToolbarCommandControl.Remove(file.FileId);
+            }
+        }
+        else if (FileToRemove != null)
+        {
+            Files.Remove(FileToRemove);
+            await ToolbarCommandControl.Remove(FileToRemove.FileId);
+        }
+
+        await ToolbarCommandControl.SaveChanges(Files);
+        CurrentCount = Files.Count;
+        StateHasChanged();
     }
 
     async Task About()
@@ -175,12 +300,29 @@
         {
             AboutModel = aboutData;
             IsAboutDialog = true;
+            MultiInfo = false;
+            SingleInfo = false;
 
             await ToolbarCommandControl.Expand();
-            await Task.Delay(200);
+            if (!Expanded)
+            {
+                await Task.Delay(200);
+            }
 
             Expanded = true;
             StateHasChanged();
+        }
+    }
+
+    void ClearAllChecks()
+    {
+        if (Elements.Count > 0)
+        {
+            foreach (var element in Elements)
+            {
+                element?.ClearCheckBox();
+            }
+            Console.WriteLine("Checks cleared!");
         }
     }
 }

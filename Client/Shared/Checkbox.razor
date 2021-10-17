@@ -1,0 +1,37 @@
+﻿@using Shared.ContextMenu
+
+<div class="check-state @(Visible || CheckState ? "visible" : "") @(CheckState ? "check-state--checked" : "")">
+    <input type="checkbox" value="@CheckState" @onchange="OnChange" />
+    <img src="/img/check.png" alt="Check Mark" />
+</div>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public bool Checked { get; set; }
+    [Parameter] public EventCallback<bool> ElementCheckboxCallback { get; set; }
+    public bool CheckState = false;
+
+    protected override void OnInitialized()
+    {
+        CheckState = Checked;
+    }
+
+    async Task OnChange(ChangeEventArgs e)
+    {
+        CheckState = (bool)e.Value;
+        StateHasChanged();
+        await ElementCheckboxCallback.InvokeAsync(CheckState);
+    }
+
+    public void Check()
+    {
+        CheckState = true;
+        StateHasChanged();
+    }
+
+    public void Clear()
+    {
+        CheckState = false;
+        StateHasChanged();
+    }
+}

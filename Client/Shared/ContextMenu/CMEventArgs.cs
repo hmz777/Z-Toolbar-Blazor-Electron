@@ -11,5 +11,6 @@ namespace BlazorElectronToolbar.Client.Shared.ContextMenu
     {
         public MouseEventArgs MouseEventArgs;
         public string ItemId;
+        public bool Checked { get; set; }
     }
 }
