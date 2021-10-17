@@ -26,5 +26,8 @@
             e.preventDefault();
             e.stopPropagation();
         });
+    },
+    FocusElement: function (selector) {
+        document.querySelector(selector).focus();
     }
 }
