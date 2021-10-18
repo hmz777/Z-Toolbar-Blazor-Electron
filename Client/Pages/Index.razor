@@ -77,27 +77,53 @@
 </ContextMenu>
 
 @code {
+    #region Context Menu
+
     IJSObjectReference ContextMenuModule;
     ContextMenu ContextMenu;
+
+    #endregion
+
+    #region File Info
 
     bool Expanded = false;
     bool MultiInfo = false;
     bool SingleInfo = false;
-    List<FileDescriptor> RequestedFilesForInfo = new List<FileDescriptor>();
+    HashSet<FileDescriptor> RequestedFilesForInfo = new HashSet<FileDescriptor>();
     FileDescriptor RequestedFileForInfo;
+
+    #endregion
+
+    #region File List and Its Component List
 
     HashSet<FileDescriptor> Files = new HashSet<FileDescriptor>();
     Element Element { set { Elements.Add(value); } }
-    List<Element> Elements = new List<Element>();
+    HashSet<Element> Elements = new HashSet<Element>();
     int CurrentCount = 0;
+
+    #endregion
+
+    #region Active Item(s) Members
 
     HashSet<string> ActiveItemIds = new HashSet<string>();
     string ActiveItemId;
 
+    #endregion
+
+    #region Item Checking
+
     bool CheckMode = false;
+
+    #endregion
+
+    #region About Dialog
 
     bool IsAboutDialog = false;
     AboutModel AboutModel;
+
+    #endregion
+
+    #region Component Event Handlers
 
     protected async override Task OnInitializedAsync()
     {
@@ -119,6 +145,10 @@
         }
     }
 
+    #endregion
+
+    #region Context Menu Handlers
+
     void OnMainRightClick(MouseEventArgs e)
     {
         ActiveItemId = null;
@@ -133,6 +163,19 @@
         ContextMenu.UpdatePosition(e.ClientX, e.ClientY);
         ContextMenu.Show();
     }
+
+    void ToggleContextMenu(CMEventArgs e)
+    {
+        ActiveItemId = ActiveItemIds.Count > 0 ? null : e.ItemId;
+
+        StateHasChanged();
+        ContextMenu.UpdatePosition(e.MouseEventArgs.ClientX, e.MouseEventArgs.ClientY);
+        ContextMenu.Show();
+    }
+
+    #endregion
+
+    #region Item Checking Logic
 
     void SelectionHandlerDown(KeyboardEventArgs e)
     {
@@ -167,14 +210,21 @@
         }
     }
 
-    void ToggleContextMenu(CMEventArgs e)
+    void ClearAllChecks()
     {
-        ActiveItemId = ActiveItemIds.Count > 0 ? null : e.ItemId;
-
-        StateHasChanged();
-        ContextMenu.UpdatePosition(e.MouseEventArgs.ClientX, e.MouseEventArgs.ClientY);
-        ContextMenu.Show();
+        if (Elements.Count > 0)
+        {
+            foreach (var element in Elements)
+            {
+                element?.ClearCheckBox();
+            }
+            Console.WriteLine("Checks cleared!");
+        }
     }
+
+    #endregion
+
+    #region Item Add/Remove Logic
 
     [JSInvokable]
     public async void ItemDropHandler(string JsonData)
@@ -196,67 +246,6 @@
             CurrentCount = Files.Count;
             StateHasChanged();
         }
-    }
-
-    async Task Run()
-    {
-        FileDescriptor File = null;
-
-        if (ActiveItemIds.Count > 0)
-        {
-            File = Files.Where(f => f.FileId == ActiveItemIds.First()).FirstOrDefault();
-        }
-        else if (!string.IsNullOrEmpty(ActiveItemId))
-        {
-            File = Files.Where(f => f.FileId == ActiveItemId).FirstOrDefault();
-        }
-
-        if (File != null)
-        {
-            var res = await ToolbarCommandControl.Run(File.Path);
-
-            if (!res) //Make an error dialog instead
-            {
-                throw new Exception($"App {File.Name} failed to start!");
-            }
-        }
-    }
-
-    async Task ShowInfo()
-    {
-        IsAboutDialog = false;
-
-        if (ActiveItemIds.Count > 0 && string.IsNullOrEmpty(ActiveItemId))
-        {
-            MultiInfo = true;
-            SingleInfo = false;
-            RequestedFilesForInfo = Files.Where(f => ActiveItemIds.Contains(f.FileId)).ToList();
-        }
-        else if (!string.IsNullOrEmpty(ActiveItemId) && ActiveItemIds.Count == 0)
-        {
-            SingleInfo = true;
-            MultiInfo = false;
-            RequestedFileForInfo = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-        }
-
-        await ToolbarCommandControl.Expand();
-        if (!Expanded)
-        {
-            await Task.Delay(200);
-        }
-
-        Expanded = true;
-        StateHasChanged();
-    }
-
-    async Task HideInfo()
-    {
-        Expanded = false;
-        IsAboutDialog = false;
-        MultiInfo = false;
-        SingleInfo = false;
-        StateHasChanged();
-        await ToolbarCommandControl.Retract();
     }
 
     async Task Remove()
@@ -292,6 +281,75 @@
         StateHasChanged();
     }
 
+    #endregion
+
+    #region User Actions
+
+    async Task Run()
+    {
+        FileDescriptor File = null;
+
+        if (ActiveItemIds.Count > 0)
+        {
+            File = Files.Where(f => f.FileId == ActiveItemIds.First()).FirstOrDefault();
+        }
+        else if (!string.IsNullOrEmpty(ActiveItemId))
+        {
+            File = Files.Where(f => f.FileId == ActiveItemId).FirstOrDefault();
+        }
+
+        if (File != null)
+        {
+            var res = await ToolbarCommandControl.Run(File.Path);
+
+            if (!res) //Make an error dialog instead
+            {
+                throw new Exception($"App {File.Name} failed to start!");
+            }
+        }
+    }
+
+    async Task ShowInfo()
+    {
+        IsAboutDialog = false;
+
+        if (ActiveItemIds.Count > 0 && string.IsNullOrEmpty(ActiveItemId))
+        {
+            MultiInfo = true;
+            SingleInfo = false;
+            RequestedFilesForInfo = Files.Where(f => ActiveItemIds.Contains(f.FileId)).ToHashSet();
+        }
+        else if (!string.IsNullOrEmpty(ActiveItemId) && ActiveItemIds.Count == 0)
+        {
+            SingleInfo = true;
+            MultiInfo = false;
+            RequestedFileForInfo = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        }
+
+        await ToolbarCommandControl.Expand();
+        if (!Expanded)
+        {
+            await Task.Delay(200);
+        }
+
+        Expanded = true;
+        StateHasChanged();
+    }
+
+    async Task HideInfo()
+    {
+        Expanded = false;
+        IsAboutDialog = false;
+        MultiInfo = false;
+        SingleInfo = false;
+        StateHasChanged();
+        await ToolbarCommandControl.Retract();
+    }
+
+    #endregion
+
+    #region About Logic
+
     async Task About()
     {
         var aboutData = await ToolbarCommandControl.AboutDialog();
@@ -314,15 +372,5 @@
         }
     }
 
-    void ClearAllChecks()
-    {
-        if (Elements.Count > 0)
-        {
-            foreach (var element in Elements)
-            {
-                element?.ClearCheckBox();
-            }
-            Console.WriteLine("Checks cleared!");
-        }
-    }
+    #endregion
 }
