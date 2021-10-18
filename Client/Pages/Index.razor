@@ -273,7 +273,7 @@
             FileToRemove = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         }
 
-        if (FilesToRemove.Count > 0)
+        if (FilesToRemove?.Count > 0)
         {
             foreach (var file in FilesToRemove)
             {

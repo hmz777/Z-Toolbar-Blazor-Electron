@@ -1,7 +1,7 @@
 ﻿@using Shared.ContextMenu
 
 <div class="check-state @(Visible || CheckState ? "visible" : "") @(CheckState ? "check-state--checked" : "")">
-    <input type="checkbox" value="@CheckState" @onchange="OnChange" />
+    <input type="checkbox" value="@CheckState" @onchange="OnChange" checked="@CheckState"/>
     <img src="/img/check.png" alt="Check Mark" />
 </div>
 
