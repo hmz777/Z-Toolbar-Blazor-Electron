@@ -8,7 +8,15 @@
 @code {
     [Parameter] public bool Visible { get; set; }
     [Parameter] public bool Checked { get; set; }
+
+    /// <summary>
+    /// A callback for reporting the change in value to the parent Element component
+    /// </summary>
     [Parameter] public EventCallback<bool> ElementCheckboxCallback { get; set; }
+
+    /// <summary>
+    /// Internal check state
+    /// </summary>
     public bool CheckState = false;
 
     protected override void OnInitialized()
@@ -16,6 +24,11 @@
         CheckState = Checked;
     }
 
+    /// <summary>
+    /// This will inform the parent Element component of the checkbox change
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
     async Task OnChange(ChangeEventArgs e)
     {
         CheckState = (bool)e.Value;
@@ -23,12 +36,18 @@
         await ElementCheckboxCallback.InvokeAsync(CheckState);
     }
 
+    /// <summary>
+    /// Check the checkbox via component reference
+    /// </summary>
     public void Check()
     {
         CheckState = true;
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Clear the checkbox via component reference
+    /// </summary>
     public void Clear()
     {
         CheckState = false;

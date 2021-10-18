@@ -32,6 +32,11 @@
 @code {
     [Parameter] public AboutModel AboutModel { get; set; }
 
+    /// <summary>
+    /// The same handler for launching files but for links
+    /// </summary>
+    /// <param name="Link"></param>
+    /// <returns></returns>
     async Task OpenLink(string Link)
     {
         await TEC.Run(Link);

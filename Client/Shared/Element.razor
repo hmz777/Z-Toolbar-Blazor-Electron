@@ -14,16 +14,27 @@
 </div>
 
 @code {
+    /// <summary>
+    /// A callback to show the context menu on this element
+    /// </summary>
     [Parameter] public EventCallback<CMEventArgs> OnContextMenu { get; set; }
     [Parameter] public FileDescriptor File { get; set; }
+
+    /// <summary>
+    /// A flag to show the checkboxes when holding the Ctrl key in the Index page
+    /// </summary>
     [Parameter] public bool CheckedMode { get; set; }
+
+    /// <summary>
+    /// A callback for the Index page that will be invoked on the checkbox check
+    /// </summary>
     [Parameter] public EventCallback<CMEventArgs> CheckBoxCallback { get; set; }
 
     Checkbox Checkbox;
 
-    string FileIconPath = "app-default.png"; //Default icon in case we couldn't fetch the app icon.
-    string FolderIconPath = "folder-default.png"; //Default icon for folders.
-    string ActiveIcon;
+    string FileIconPath = "app-default.png"; //Default icon in case we couldn't fetch the app icon
+    string FolderIconPath = "folder-default.png"; //Default icon for folders
+    string ActiveIcon; //Chosen icon
 
     bool IsFolder;
     bool IconCreated;
@@ -40,26 +51,46 @@
         }
     }
 
+    /// <summary>
+    /// Invokes the Index page callback to activate the context menu on this element
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
     async Task OnRightClick(MouseEventArgs e)
     {
         await OnContextMenu.InvokeAsync(new CMEventArgs { MouseEventArgs = e, ItemId = File.FileId, Checked = Checkbox.CheckState });
     }
 
+    /// <summary>
+    /// A method that is invoked when the child checkbox is checked that passes the event to the Index page
+    /// </summary>
+    /// <param name="CheckState"></param>
+    /// <returns></returns>
     async Task OnCheckboxChecked(bool CheckState)
     {
         await CheckBoxCallback.InvokeAsync(new CMEventArgs { Checked = CheckState, ItemId = File.FileId });
     }
 
+    /// <summary>
+    /// Check the child checkbox from parent by reference
+    /// </summary>
     public void CheckCheckbox()
     {
         Checkbox.Check();
     }
 
+    /// <summary>
+    /// Clear the child checkbox from parent by reference
+    /// </summary>
     public void ClearCheckBox()
     {
         Checkbox.Clear();
     }
 
+    /// <summary>
+    /// Request the server to extract the icon from file if it doesn't exist
+    /// </summary>
+    /// <returns></returns>
     async Task CreateIcon()
     {
         if (!IsFolder)
@@ -80,6 +111,10 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    /// A handler to run the file on click
+    /// </summary>
+    /// <returns></returns>
     async Task Run()
     {
         var res = await ToolbarCommandControl.Run(File.Path);
