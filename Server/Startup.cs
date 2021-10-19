@@ -27,13 +27,14 @@ namespace BlazorElectronToolbar.Server
         public int WindowWidth { get; set; }
         public int ExpandAmount { get; set; }
         public string HotKeyCombination { get; set; }
+        public string AppPath { get; set; }
+        public string AssetsPath { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddRazorPages();
             services.AddElectron();
         }
 
@@ -48,7 +49,6 @@ namespace BlazorElectronToolbar.Server
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -72,6 +72,9 @@ namespace BlazorElectronToolbar.Server
 
         async Task ElectronBootstrap(IWebHostEnvironment env)
         {
+            AppPath = await Electron.App.GetAppPathAsync();
+            AssetsPath = Path.Combine(env.ContentRootPath, "Assets");
+
             ScreenBounds = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
 
             WindowWidth = Configuration.GetValue<int>("Window:Width");
@@ -94,14 +97,15 @@ namespace BlazorElectronToolbar.Server
                 Fullscreenable = false,
                 Movable = false,
                 Transparent = true,
-                SkipTaskbar = true
+                SkipTaskbar = true,
+                Icon = Path.Combine(AssetsPath, "app-icon-l.ico")
             });
 
             Electron.NativeTheme.SetThemeSource(ThemeSourceMode.System);
 
             if (!env.IsDevelopment())
             {
-                await ConfigureTrayIcon(env);
+                await ConfigureTrayIcon(AssetsPath);
                 ConfigureStartup();
             }
 
@@ -187,7 +191,7 @@ namespace BlazorElectronToolbar.Server
             }
         }
 
-        async Task ConfigureTrayIcon(IWebHostEnvironment env)
+        async Task ConfigureTrayIcon(string RootPath)
         {
             Electron.Tray.SetTitle("Z-Toolbar");
             Electron.Tray.SetToolTip("Z-Toolbar");
@@ -204,11 +208,11 @@ namespace BlazorElectronToolbar.Server
             //Since chrome follows the system chosen theme, we could guess the system theme from the chrome theme.
             if (await Electron.NativeTheme.ShouldUseDarkColorsAsync())
             {
-                Electron.Tray.Show(Path.Combine(env.ContentRootPath, "Assets/app-icon-l.png"), menu);
+                Electron.Tray.Show(Path.Combine(RootPath, "app-icon-l.png"), menu);
             }
             else
             {
-                Electron.Tray.Show(Path.Combine(env.ContentRootPath, "Assets/app-icon-d.png"), menu);
+                Electron.Tray.Show(Path.Combine(RootPath, "app-icon-d.png"), menu);
             }
         }
 
