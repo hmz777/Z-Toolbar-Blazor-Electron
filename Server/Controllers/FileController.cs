@@ -3,6 +3,7 @@ using BlazorElectronToolbar.Shared;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,7 +35,16 @@ namespace BlazorElectronToolbar.Server.Controllers
         {
             try
             {
-                var iconPath = System.IO.Path.Combine(webHostEnvironment.ContentRootPath, "..", "Client", "wwwroot", "img", fileModel.FileId + ".png");
+                string iconPath;
+
+                if (!webHostEnvironment.IsDevelopment())
+                {
+                    iconPath = System.IO.Path.Combine(webHostEnvironment.WebRootPath, "img", fileModel.FileId + ".png");
+                }
+                else
+                {
+                    iconPath = System.IO.Path.Combine(webHostEnvironment.ContentRootPath, "..", "Client", "wwwroot", "img", fileModel.FileId + ".png");
+                }
 
                 if (!System.IO.File.Exists(iconPath))
                 {
@@ -51,7 +61,7 @@ namespace BlazorElectronToolbar.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, ex.Message + " / " + "Content Root Path: " + webHostEnvironment.ContentRootPath + " Web Root: " + webHostEnvironment.WebRootPath);
             }
         }
 
@@ -62,7 +72,16 @@ namespace BlazorElectronToolbar.Server.Controllers
         {
             try
             {
-                var iconPath = System.IO.Path.Combine(webHostEnvironment.ContentRootPath, "..", "Client", "wwwroot", "img", FileId + ".png");
+                string iconPath;
+
+                if (!webHostEnvironment.IsDevelopment())
+                {
+                    iconPath = System.IO.Path.Combine(webHostEnvironment.WebRootPath, "img", FileId + ".png");
+                }
+                else
+                {
+                    iconPath = System.IO.Path.Combine(webHostEnvironment.ContentRootPath, "..", "Client", "wwwroot", "img", FileId + ".png");
+                }
 
                 if (System.IO.File.Exists(iconPath))
                 {
@@ -104,7 +123,17 @@ namespace BlazorElectronToolbar.Server.Controllers
             try
             {
                 var savePath = configuration.GetValue<string>("SavePath");
-                var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), savePath);
+
+                string path;
+
+                if (!webHostEnvironment.IsDevelopment())
+                {
+                    path = System.IO.Path.Combine(webHostEnvironment.WebRootPath, savePath);
+                }
+                else
+                {
+                    path = System.IO.Path.Combine(webHostEnvironment.ContentRootPath, "..", "Client", "wwwroot", savePath);
+                }
 
                 var json = JsonSerializer.Serialize<IEnumerable<FileDescriptor>>(Files);
                 System.IO.File.WriteAllText(path, json);
@@ -124,7 +153,17 @@ namespace BlazorElectronToolbar.Server.Controllers
             try
             {
                 var loadPath = configuration.GetValue<string>("SavePath");
-                var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), loadPath);
+
+                string path;
+
+                if (!webHostEnvironment.IsDevelopment())
+                {
+                    path = System.IO.Path.Combine(webHostEnvironment.WebRootPath, loadPath);
+                }
+                else
+                {
+                    path = System.IO.Path.Combine(webHostEnvironment.ContentRootPath, "..", "Client", "wwwroot", loadPath);
+                }
 
                 if (System.IO.File.Exists(path))
                 {
