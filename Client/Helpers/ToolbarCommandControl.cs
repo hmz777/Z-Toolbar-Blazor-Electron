@@ -32,8 +32,6 @@ namespace BlazorElectronToolbar.Client.Helpers
 
                 await httpClient.GetAsync("/ExpandWindow");
 
-                await Task.Delay(150);
-
                 toolbarExpandNotifier.Toggle(true);
 
                 ToolbarWorking = false;
@@ -48,7 +46,7 @@ namespace BlazorElectronToolbar.Client.Helpers
 
                 toolbarExpandNotifier.Toggle(false);
 
-                await Task.Delay(1000);
+                await Task.Delay(400);
 
                 await httpClient.GetAsync("/UnExpandWindow");
 
