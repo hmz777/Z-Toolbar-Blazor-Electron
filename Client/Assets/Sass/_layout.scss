@@ -69,16 +69,20 @@
 
                 .close-btn {
                     position: absolute;
-                    top: .5em;
+                    top: .8em;
                     right: 1em;
                     font-weight: bold;
                     border: none;
                     background: none;
                     color: white;
-                    background: $accent-color;
+                    background: $el-hover-back-color;
                     padding: .2em;
                     border-radius: $el-border-radius;
                     z-index: 1;
+
+                    i {
+                        color: $accent-color;
+                    }
                 }
 
                 .side-content--outer {
