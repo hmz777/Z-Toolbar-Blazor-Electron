@@ -1,4 +1,7 @@
-﻿ZHelpers = {
+﻿const { ipcRenderer } = require('electron');
+var AppReference;
+
+ZHelpers = {
     InitElementContainerScrollbars: function (element) {
         OverlayScrollbars(document.querySelector(element), {
             className: "os-theme-light",
@@ -29,5 +32,15 @@
     },
     FocusElement: function (selector) {
         document.querySelector(selector).focus();
+    },
+    HookBlazorToCommandChannel: function (appReference) {
+        AppReference = appReference;
+
+        ipcRenderer.on('CommandChannel', async (event, arg) => {
+            _ = await AppReference.invokeMethodAsync("ToggleVisibility", arg.value);
+        });
     }
 }
+
+
+

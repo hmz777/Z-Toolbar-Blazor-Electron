@@ -1,4 +1,5 @@
 using BlazorElectronToolbar.Server.Helpers;
+using BlazorElectronToolbar.Shared;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -15,12 +16,14 @@ namespace BlazorElectronToolbar.Server
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             Configuration = configuration;
+            WebHostEnvironment = webHostEnvironment;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment WebHostEnvironment { get; set; }
         public BrowserWindow MainWindow { get; set; }
         public Rectangle ScreenBounds { get; set; }
         public int WindowHeight { get; set; }
@@ -39,9 +42,9 @@ namespace BlazorElectronToolbar.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
+            if (WebHostEnvironment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
@@ -66,14 +69,14 @@ namespace BlazorElectronToolbar.Server
 
             if (HybridSupport.IsElectronActive)
             {
-                await ElectronBootstrap(env);
+                await ElectronBootstrap();
             }
         }
 
-        async Task ElectronBootstrap(IWebHostEnvironment env)
+        async Task ElectronBootstrap()
         {
             AppPath = await Electron.App.GetAppPathAsync();
-            AssetsPath = Path.Combine(env.ContentRootPath, "Assets");
+            AssetsPath = Path.Combine(WebHostEnvironment.ContentRootPath, "Assets");
 
             ScreenBounds = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
 
@@ -103,7 +106,7 @@ namespace BlazorElectronToolbar.Server
 
             Electron.NativeTheme.SetThemeSource(ThemeSourceMode.System);
 
-            if (!env.IsDevelopment())
+            if (!WebHostEnvironment.IsDevelopment())
             {
                 await ConfigureTrayIcon(AssetsPath);
                 ConfigureStartup();
@@ -123,7 +126,7 @@ namespace BlazorElectronToolbar.Server
                 MainWindow.SetAlwaysOnTop(true);
                 MainWindow.SetVisibleOnAllWorkspaces(true);
 
-                if (env.IsDevelopment())
+                if (WebHostEnvironment.IsDevelopment())
                 {
                     MainWindow.WebContents.OpenDevTools();
                 }
@@ -140,18 +143,25 @@ namespace BlazorElectronToolbar.Server
 
         async void OnLostFocus()
         {
-            //Try to do some kind of animation trick to hide the toolbar
+            var hasFocus = await MainWindow.IsFocusedAsync();
 
-            var pos = await MainWindow.GetPositionAsync();
+            if (!hasFocus)
+            {
+                var pos = await MainWindow.GetPositionAsync();
 
-            MainWindow.SetPosition(ScreenBounds.Width, pos[1]);
+                Electron.IpcMain.Send(MainWindow, "CommandChannel", new ServerClientModel { Key = "AppShow", Value = false });
+
+                await Task.Delay(400);
+
+                MainWindow.SetPosition(ScreenBounds.Width, pos[1]);
+            }
         }
 
         void OnHotKeyTrigger()
         {
-            //Try to do some kind of animation trick to show the toolbar
-
             RestoreToolbarDefaultPosition(false);
+
+            Electron.IpcMain.Send(MainWindow, "CommandChannel", new ServerClientModel { Key = "AppShow", Value = true });
 
             Electron.App.Focus();
         }

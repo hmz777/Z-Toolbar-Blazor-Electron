@@ -2,22 +2,32 @@
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject ToolbarExpandNotifier TEN
+@inject IJSRuntime JSRuntime
 
-<div class="main @(IsToolbarExpanded ? "expand": "")" id="main" role="main">
+<div class="main @(AppVisible ? "slideIn": "") @(IsToolbarExpanded ? "expand": "")" id="main" role="main">
     @Body
 </div>
 
 @code {
     bool IsToolbarExpanded = false;
+    bool AppVisible = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         TEN.OnExpandToggle += ToggleExpand;
+        await JSRuntime.InvokeVoidAsync("ZHelpers.HookBlazorToCommandChannel", DotNetObjectReference.Create(this));
     }
 
     void ToggleExpand(bool expand)
     {
         IsToolbarExpanded = expand;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void ToggleVisibility(bool state)
+    {
+        AppVisible = state;
         StateHasChanged();
     }
 
