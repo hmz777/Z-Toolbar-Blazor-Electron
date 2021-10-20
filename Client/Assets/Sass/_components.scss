@@ -3,7 +3,7 @@
     padding: .45em .45em .35em .45em;
     border-radius: $tooltip-border-radius + 1em;
     color: $tooltip-color;
-    Background: $tooltip-back-color;
+    background: var(--cm-button-hover-color);
     bottom: -20%;
     left: 50%;
     text-align: center;
@@ -171,7 +171,7 @@
     width: 100%;
 
     &#about-dialog {
-        background: $accent-color;
+        background: var(--cm-button-hover-color);
         height: 100%;
         word-break: break-word;
         margin-top: 2em;
@@ -251,7 +251,7 @@
 
         &:hover {
             button {
-                background: $cm-item-hover-back-color;
+                background: var(--cm-button-hover-color);
             }
         }
     }

@@ -1,4 +1,8 @@
-﻿body {
+﻿:root {
+    --cm-button-hover-color: #ff8c00;
+}
+
+body {
     background: transparent;
     overflow: hidden;
     width: 100%;
@@ -21,7 +25,7 @@
             border-top-left-radius: $window-border-radius;
             border-bottom-left-radius: $window-border-radius;
             background: $back-color;
-            border-left: .65em solid $border-color;
+            border-left: .65em solid var(--cm-button-hover-color);            
             width: 10em;
             height: 100%;
             display: flex;
@@ -88,7 +92,7 @@
                     z-index: 1;
 
                     i {
-                        color: $accent-color;
+                        color: var(--cm-button-hover-color);
                     }
                 }
 
