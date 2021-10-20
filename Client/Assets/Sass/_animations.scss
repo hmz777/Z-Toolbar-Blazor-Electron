@@ -8,6 +8,16 @@
     }
 }
 
+@keyframes FadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
 @keyframes FadeUp {
     from {
         transform: translateY(.3em);

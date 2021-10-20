@@ -32,6 +32,13 @@
             -moz-box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.45);
             box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.45);
             transition: all 0.3s $easing;
+            opacity: 0;
+            transform: translateX(100%);
+
+            &.slideIn {
+                opacity: 1;
+                transform: translateX(0);
+            }
 
             &.expand {
                 width: 100%;
