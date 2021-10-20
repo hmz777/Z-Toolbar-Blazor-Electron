@@ -1,21 +1,26 @@
 ﻿@using Helpers
 @inherits LayoutComponentBase
 @implements IDisposable
+@inject IToolbarCommandControl TCC
 @inject ToolbarExpandNotifier TEN
 @inject IJSRuntime JSRuntime
 
-<div class="main @(AppVisible ? "slideIn": "") @(IsToolbarExpanded ? "expand": "")" id="main" role="main">
-    @Body
-</div>
+<CascadingValue Value="@AccentColor">
+    <div class="main @(AppVisible ? "slideIn": "") @(IsToolbarExpanded ? "expand": "")" style="--cm-button-hover-color:@AccentColor" id="main" role="main">
+        @Body
+    </div>
+</CascadingValue>
 
 @code {
     bool IsToolbarExpanded = false;
     bool AppVisible = true;
+    string AccentColor = "#ff8c00";
 
     protected override async Task OnInitializedAsync()
     {
         TEN.OnExpandToggle += ToggleExpand;
         await JSRuntime.InvokeVoidAsync("ZHelpers.HookBlazorToCommandChannel", DotNetObjectReference.Create(this));
+        AccentColor = (await TCC.GetWindowsAccentColor())?.ToString() ?? AccentColor;
     }
 
     void ToggleExpand(bool expand)
