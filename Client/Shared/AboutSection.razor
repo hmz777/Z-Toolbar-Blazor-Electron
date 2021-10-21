@@ -15,7 +15,7 @@
     <div class="info-data">
         @foreach (var Item in AboutModel.Data.OrderBy(d => d.Key))
         {
-            <div class="info-sec">
+            <div class="info-sec info-sec--n">
                 <span class="label">@Item.Key</span>
                 <span class="value">@Item.Value</span>
             </div>
