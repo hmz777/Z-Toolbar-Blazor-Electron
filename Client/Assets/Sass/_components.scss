@@ -4,22 +4,14 @@
     border-radius: $tooltip-border-radius + 1em;
     color: $tooltip-color;
     background: var(--cm-button-hover-color);
-    bottom: -20%;
-    left: 50%;
     text-align: center;
     font-size: .7em;
     visibility: hidden;
     opacity: 0;
     transition: opacity .3s $easing;
     z-index: 3;
-    transform: translateX(-50%);
-    width: 100%;
     max-width: 100%;
     overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    word-break: break-all;
 }
 
 .element-container {
@@ -58,6 +50,17 @@
                 justify-content: center;
                 position: relative;
                 animation: FadeUp .3s $easing;
+
+                .tooltip {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 4;
+                    -webkit-box-orient: vertical;
+                    word-break: break-all;
+                    width: 100%;
+                    transform: translateX(-50%);
+                    bottom: -20%;
+                    left: 50%;
+                }
 
                 &:hover {
                     .tooltip {
@@ -133,7 +136,7 @@
                     }
 
                     &--checked {
-                        background: $accent-color;
+                        background: var(--cm-button-hover-color);
 
                         img {
                             display: block;
@@ -163,7 +166,7 @@
 
 .element-info {
     background: $eli-back-color;
-    padding: 1em;
+    padding: .5em;
     margin-bottom: .5em;
     border-radius: $eli-border-radius;
     color: white;
@@ -175,6 +178,7 @@
         height: 100%;
         word-break: break-word;
         margin-top: 2em;
+        padding: 1em;
 
         .info-data {
             display: flex;
@@ -201,6 +205,38 @@
 
     .info-sec {
         display: block;
+        background: none;
+        border: none;
+        color: white;
+        text-align: left;
+        transition: background .3s $easing;
+        padding: .5em 1em;
+        border-radius: $eli-border-radius;
+        position: relative;
+
+        &--n {
+            padding: 0;
+            background: none;
+            border-radius: 0;
+        }
+
+        .tooltip {
+            width: auto;
+            left: -2.5em;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-block;
+            font-size: .6em;
+        }
+
+        &:hover {
+            .tooltip {
+                visibility: visible;
+                opacity: 1;
+            }
+
+            background: $el-hover-back-color;
+        }
 
         .label {
             font-weight: bold;
@@ -216,6 +252,24 @@
 
         .value {
             font-weight: normal;
+        }
+    }
+
+    .status {
+        display: none;
+        animation: FadeIn .3s $easing both;
+        position: absolute;
+        z-index: 1;
+        padding: .5em;
+        border-radius: $eli-border-radius;
+        background: var(--cm-button-hover-color);
+        color: white;
+        top: 82%;
+        left: 82%;
+        font-size: .8em;
+
+        &.visible {
+            display: block;
         }
     }
 }
