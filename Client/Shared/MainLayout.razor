@@ -5,15 +5,13 @@
 @inject ToolbarExpandNotifier TEN
 @inject IJSRuntime JSRuntime
 
-<CascadingValue Value="@AccentColor">
-    <div class="main @(AppVisible ? "slideIn": "") @(IsToolbarExpanded ? "expand": "")" style="--cm-button-hover-color:@AccentColor" id="main" role="main">
-        @Body
-    </div>
-</CascadingValue>
+<div class="main @(AppVisible ? "slideIn": "") @(IsToolbarExpanded ? "expand": "")" style="--cm-button-hover-color:@AccentColor" id="main" role="main">
+    @Body
+</div>
 
 @code {
     bool IsToolbarExpanded = false;
-    bool AppVisible = true;
+    bool AppVisible = false;
     string AccentColor = "#ff8c00";
 
     protected override async Task OnInitializedAsync()
