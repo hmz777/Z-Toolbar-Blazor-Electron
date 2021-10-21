@@ -39,10 +39,11 @@
     /// <summary>
     /// Check the checkbox via component reference
     /// </summary>
-    public void Check()
+    public async Task Check()
     {
         CheckState = true;
         StateHasChanged();
+        await ElementCheckboxCallback.InvokeAsync(CheckState);
     }
 
     /// <summary>

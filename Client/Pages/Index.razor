@@ -167,7 +167,6 @@
     void ToggleContextMenu(CMEventArgs e)
     {
         ActiveItemId = ActiveItemIds.Count > 0 ? null : e.ItemId;
-
         StateHasChanged();
         ContextMenu.UpdatePosition(e.MouseEventArgs.ClientX, e.MouseEventArgs.ClientY);
         ContextMenu.Show();
@@ -182,6 +181,12 @@
         if (e.CtrlKey)
         {
             CheckMode = true;
+
+            if (e.Code == "KeyA")
+            {
+                CheckAll();
+            }
+
             StateHasChanged();
         }
     }
@@ -200,13 +205,22 @@
     {
         if (e.Checked)
         {
-            Console.WriteLine($"item added {e.ItemId}");
             ActiveItemIds.Add(e.ItemId);
         }
         else
         {
-            Console.WriteLine($"item removed {e.ItemId}");
             ActiveItemIds.Remove(e.ItemId);
+        }
+    }
+
+    async void CheckAll()
+    {
+        if (Elements.Count > 0)
+        {
+            foreach (var element in Elements)
+            {
+                await element?.CheckCheckbox();
+            }
         }
     }
 
@@ -218,7 +232,6 @@
             {
                 element?.ClearCheckBox();
             }
-            Console.WriteLine("Checks cleared!");
         }
     }
 
