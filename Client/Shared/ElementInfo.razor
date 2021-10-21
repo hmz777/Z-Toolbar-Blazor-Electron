@@ -1,17 +1,43 @@
 ﻿@using Helpers
 @using BlazorElectronToolbar.Shared
 @inject IToolbarCommandControl TEC
+@inject IJSRuntime JSRuntime
 
 <div class="element-info" id="element-info">
     @foreach (var property in File?.GetType().GetProperties())
     {
-        <div class="info-sec">
+        <button type="button" class="info-sec" @onclick="@(async()=> { await CopyToClipboard(property.Name); })">
+            <Tooltip>Copy</Tooltip>
             <span class="label">@property.Name</span>
             <span class="value">@(property.GetValue(File) as string)</span>
-        </div>
+        </button>
     }
+
+    <span class="status @(DataCopied ? "visible": "")">Copied!</span>
 </div>
 
 @code {
     [Parameter] public FileDescriptor File { get; set; }
+
+    bool DataCopied = false;
+
+    async Task CopyToClipboard(string PropertyName)
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", (string)File.
+            GetType().
+            GetProperties().
+            Where(p => p.Name.Equals(PropertyName, StringComparison.InvariantCultureIgnoreCase)).
+            First()
+            .GetValue(File));
+
+        DataCopied = true;
+
+        StateHasChanged();
+
+        await Task.Delay(1000);
+
+        DataCopied = false;
+
+        StateHasChanged();
+    }
 }
