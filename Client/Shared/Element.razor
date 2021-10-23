@@ -6,8 +6,8 @@
 
 <div class="element" @oncontextmenu="OnRightClick" @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true">
     <Tooltip>@File.Name</Tooltip>
-    <button type="button" @onclick="Run">
-        <img src="/img/@(string.IsNullOrEmpty(ActiveIcon) ? FileIconPath : ActiveIcon)?r=@(new Random(1).Next(100,50000))" alt="@File.Name icon" />
+    <button type="button" @onclick="Run" data-guid="@File.FileId">
+        <img src="/img/@(string.IsNullOrEmpty(ActiveIcon) ? FileIconPath : ActiveIcon)?r=@(new Random().Next(100,50000))" alt="@File.Name icon" />
         <p>@File.Name</p>
     </button>
     <Checkbox @ref="Checkbox" Visible="CheckedMode" ElementCheckboxCallback="OnCheckboxChecked"></Checkbox>
@@ -37,17 +37,13 @@
     string ActiveIcon; //Chosen icon
 
     bool IsFolder;
-    bool IconCreated;
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        //Console.WriteLine($"Element {File.Name} after render, active icon {ActiveIcon}");
-        if (firstRender && !IconCreated)
+        if (firstRender)
         {
-            //Console.WriteLine($"Element {File.Name} after render, first render, active icon {ActiveIcon}");
             IsFolder = await ToolbarCommandControl.DirectoryOrFile(File.Path);
             await CreateIcon();
-            //Console.WriteLine($"Element {File.Name} after render, first render, icon created {IconCreated}, active icon {ActiveIcon}");
         }
     }
 
@@ -76,7 +72,7 @@
     /// </summary>
     public async Task CheckCheckbox()
     {
-       await Checkbox.Check();
+        await Checkbox.Check();
     }
 
     /// <summary>
@@ -107,7 +103,6 @@
             ActiveIcon = FolderIconPath;
         }
 
-        IconCreated = true;
         StateHasChanged();
     }
 
