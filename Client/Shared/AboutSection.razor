@@ -6,12 +6,18 @@
     <span class="h3">About</span>
     <p>
         This is a simple productivity tool written using <a href="#" @onclick:preventDefault="true" @onclick="@(async()=> { await OpenLink("https://github.com/ElectronNET/Electron.NET"); })">Electron.NET</a>, ASP.NET Core, Blazor Web Assembly and Razor.
+        <br />
+        <br />
         For the purpose of pinnig important frequently ran files or visited folders for easy access.
+        <br />
         <br />
         If you notice any issues or have a suggestion, please email me on <a href="mailto:hamzi1995@gmail.com">here</a>.
         <br />
+        <br />
         Or create an issue/submit a pull request on the <a href="#" @onclick:preventDefault="true" @onclick="@(async()=> { await OpenLink("https://github.com/hmz777/Z-Toolbar-Blazor-Electron"); })">GitHub repo</a>.
     </p>
+    <br />
+    <br />
     <div class="info-data">
         @foreach (var Item in AboutModel.Data.OrderBy(d => d.Key))
         {
