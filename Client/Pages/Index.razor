@@ -41,7 +41,7 @@
             {
                 @foreach (var File in Files)
                 {
-                    <Element @ref="Element" OnContextMenu="ToggleContextMenu" File="File" CheckedMode="CheckMode" CheckBoxCallback="ItemMultiselectHandler"></Element>
+                    <Element @key="File" @ref="Element" OnContextMenu="ToggleContextMenu" File="File" CheckedMode="CheckMode" CheckBoxCallback="ItemMultiselectHandler" />
                 }
             }
             else
@@ -66,6 +66,7 @@
     {
         <CMItem OnClick="Run">Run</CMItem>
         <CMItem OnClick="ShowInfo">Show info</CMItem>
+        <CMItem OnClick="ShowInExplorer">Show in explorer</CMItem>
         <CMItem OnClick="Remove">Remove</CMItem>
     }
     else
@@ -97,7 +98,16 @@
     #region File List and Its Component List
 
     HashSet<FileDescriptor> Files = new HashSet<FileDescriptor>();
-    Element Element { set { Elements.Add(value); } }
+    Element Element
+    {
+        set
+        {
+            if (!Elements.Any(f => f.File == value.File))
+            {
+                Elements.Add(value);
+            }
+        }
+    }
     HashSet<Element> Elements = new HashSet<Element>();
     int CurrentCount = 0;
 
@@ -151,13 +161,7 @@
 
     void OnMainRightClick(MouseEventArgs e)
     {
-        ActiveItemId = null;
-
-        if (ActiveItemIds.Count > 0)
-        {
-            ClearAllChecks();
-            ActiveItemIds.Clear();
-        }
+        ClearAllChecks();
 
         StateHasChanged();
         ContextMenu.UpdatePosition(e.ClientX, e.ClientY);
@@ -233,6 +237,9 @@
                 element?.ClearCheckBox();
             }
         }
+
+        ActiveItemIds.Clear();
+        ActiveItemId = null;
     }
 
     #endregion
@@ -248,7 +255,16 @@
         {
             if (!Files.Any(f => f.Name.Equals(newFiles[i].Name, StringComparison.InvariantCultureIgnoreCase)))
             {
-                newFiles[i].FileId = Guid.NewGuid().ToString();
+                string fileId;
+
+                do
+                {
+                    fileId = Guid.NewGuid().ToString();
+
+                } while (Files.Any(f => f.FileId.Equals(fileId, StringComparison.InvariantCultureIgnoreCase)));
+
+                newFiles[i].FileId = fileId;
+
                 Files.Add(newFiles[i]);
             }
         }
@@ -259,39 +275,61 @@
             CurrentCount = Files.Count;
             StateHasChanged();
         }
+
+        ClearAllChecks();
     }
 
     async Task Remove()
     {
         FileDescriptor FileToRemove = null;
         List<FileDescriptor> FilesToRemove = null;
+        Element ElementToRemove = null;
+        List<Element> ElementsToRemove = null;
 
         if (ActiveItemIds.Count > 0)
         {
+            Console.WriteLine("Active item ids are on!");
             FilesToRemove = Files.Where(f => ActiveItemIds.Contains(f.FileId)).ToList();
+            ElementsToRemove = Elements.Where(e => ActiveItemIds.Contains(e.File.FileId)).ToList();
+
+            if (FilesToRemove?.Count > 0)
+            {
+                foreach (var file in FilesToRemove)
+                {
+                    Files.Remove(file);
+                    await ToolbarCommandControl.Remove(file.FileId);
+                }
+
+                foreach (var element in ElementsToRemove)
+                {
+                    Elements.Remove(element);
+                }
+
+                await ToolbarCommandControl.SaveChanges(Files);
+                CurrentCount = Files.Count;
+                ClearAllChecks();
+                StateHasChanged();
+            }
         }
         else if (!string.IsNullOrEmpty(ActiveItemId))
         {
+            Console.WriteLine("Single active item is on!");
             FileToRemove = Files.Where(f => f.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-        }
+            ElementToRemove = Elements.Where(e => e.File.FileId.Equals(ActiveItemId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
-        if (FilesToRemove?.Count > 0)
-        {
-            foreach (var file in FilesToRemove)
+            if (FileToRemove != null)
             {
-                Files.Remove(file);
-                await ToolbarCommandControl.Remove(file.FileId);
+                Files.Remove(FileToRemove);
+                await ToolbarCommandControl.Remove(FileToRemove.FileId);
+
+                Elements.Remove(ElementToRemove);
+
+                await ToolbarCommandControl.SaveChanges(Files);
+                CurrentCount = Files.Count;
+                ClearAllChecks();
+                StateHasChanged();
             }
         }
-        else if (FileToRemove != null)
-        {
-            Files.Remove(FileToRemove);
-            await ToolbarCommandControl.Remove(FileToRemove.FileId);
-        }
-
-        await ToolbarCommandControl.SaveChanges(Files);
-        CurrentCount = Files.Count;
-        StateHasChanged();
     }
 
     #endregion
@@ -313,12 +351,22 @@
 
         if (File != null)
         {
-            var res = await ToolbarCommandControl.Run(File.Path);
+            await ToolbarCommandControl.Run(File.Path);
+        }
+    }
 
-            if (!res) //Make an error dialog instead
-            {
-                throw new Exception($"App {File.Name} failed to start!");
-            }
+    async Task ShowInExplorer()
+    {
+        FileDescriptor File = null;
+
+        if (!string.IsNullOrEmpty(ActiveItemId))
+        {
+            File = Files.Where(f => f.FileId == ActiveItemId).FirstOrDefault();
+        }
+
+        if (File != null)
+        {
+            await ToolbarCommandControl.ShowInExplorer(File.Path);
         }
     }
 
