@@ -103,11 +103,23 @@ namespace BlazorElectronToolbar.Server.Controllers
         {
             try
             {
+                if (!Directory.Exists(Path) && !System.IO.File.Exists(Path))
+                {
+                    return Ok("File does not exist!");
+                }
+
                 var PP = new Process { StartInfo = new ProcessStartInfo(Path) { UseShellExecute = true } };
                 var res = PP.Start();
                 PP.Dispose();
 
-                return Ok(true);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [Route("ShowInExplorer")]
         [HttpPost]
         [IgnoreAntiforgeryToken]

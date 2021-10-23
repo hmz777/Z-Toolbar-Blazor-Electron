@@ -117,11 +117,6 @@
     /// <returns></returns>
     async Task Run()
     {
-        var res = await ToolbarCommandControl.Run(File.Path);
-
-        if (!res) //Make an error dialog instead
-        {
-            throw new Exception($"App {File.Name} failed to start!");
-        }
+        await ToolbarCommandControl.Run(File.Path);
     }
 }

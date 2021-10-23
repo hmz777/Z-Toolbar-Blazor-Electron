@@ -71,11 +71,9 @@ namespace BlazorElectronToolbar.Client.Helpers
             return res.IsSuccessStatusCode;
         }
 
-        public async Task<bool> Run(string Path)
+        public async Task Run(string Path)
         {
-            var res = await httpClient.PostAsJsonAsync("/LaunchFile", Path);
-
-            return await res.Content.ReadFromJsonAsync<bool>();
+            await httpClient.PostAsJsonAsync("/LaunchFile", Path);
         }
 
         public async Task<AboutModel> AboutDialog()
