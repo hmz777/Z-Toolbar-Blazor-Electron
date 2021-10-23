@@ -117,5 +117,10 @@ namespace BlazorElectronToolbar.Client.Helpers
         {
             await httpClient.GetAsync("/ExitApp");
         }
+
+        public async Task ShowInExplorer(string Path)
+        {
+            await httpClient.PostAsJsonAsync("/ShowInExplorer", Path);
+        }
     }
 }

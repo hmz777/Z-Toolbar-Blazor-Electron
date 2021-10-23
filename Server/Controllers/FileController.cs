@@ -108,6 +108,25 @@ namespace BlazorElectronToolbar.Server.Controllers
                 PP.Dispose();
 
                 return Ok(true);
+        [Route("ShowInExplorer")]
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public IActionResult ShowInExplorer([FromBody] string Path)
+        {
+            try
+            {
+                if (!Directory.Exists(Path) && !System.IO.File.Exists(Path))
+                {
+                    return Ok("File does not exist!");
+                }
+
+                string Args = string.Format("/select,\"{0}\"", Path);
+
+                var PP = new Process { StartInfo = new ProcessStartInfo("explorer.exe", Args) { UseShellExecute = true } };
+                var res = PP.Start();
+                PP.Dispose();
+
+                return Ok();
             }
             catch (Exception ex)
             {
