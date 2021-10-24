@@ -1,16 +1,17 @@
 {
   "executable": "BlazorElectronToolbar.Server",
   "splashscreen": {
-    "imageFile": ""
+    "imageFile": "../../../Assets/app-icon.png"
   },
   "name": "BlazorElectronToolbar.Server",
-  "author": "",
+  "author": "Hamzi Alsheikh",
+  "description": "A simple productivity toolbar, designed for the purpose of pinnig important frequently ran files or visited folders for easy access.",
   "singleInstance": false,
   "environment": "Production",
   "build": {
     "appId": "com.BlazorElectronToolbar.Server.app",
-    "productName": "BlazorElectronToolbar.Server",
-    "copyright": "Copyright © 2020",
+    "productName": "Z-Toolbar",
+    "copyright": "Copyright © 2021",
     "buildVersion": "1.0.0",
     "compression": "maximum",
     "directories": {
@@ -30,6 +31,9 @@
         "filter": [ "**/*" ]
       },
       "**/*"
-    ]
+    ],
+    "win": {
+      "icon": "../../../Assets/app-icon.png"
+    }
   }
 }
