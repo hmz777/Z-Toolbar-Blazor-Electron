@@ -9,6 +9,18 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assets\app-icon.png" />
+    <None Remove="Assets\tray-icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\app-icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\tray-icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="13.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.11" />
   </ItemGroup>
@@ -23,9 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Watch Include="..\Client\wwwroot\css\main.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Assets\">
