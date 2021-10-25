@@ -30,7 +30,6 @@ namespace BlazorElectronToolbar.Server
         public int WindowWidth { get; set; }
         public int ExpandAmount { get; set; }
         public string HotKeyCombination { get; set; }
-        public string AppPath { get; set; }
         public string AssetsPath { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -75,7 +74,6 @@ namespace BlazorElectronToolbar.Server
 
         async Task ElectronBootstrap()
         {
-            AppPath = await Electron.App.GetAppPathAsync();
             AssetsPath = Path.Combine(WebHostEnvironment.ContentRootPath, "Assets");
 
             ScreenBounds = (await Electron.Screen.GetPrimaryDisplayAsync()).Bounds;
@@ -100,17 +98,14 @@ namespace BlazorElectronToolbar.Server
                 Fullscreenable = false,
                 Movable = false,
                 Transparent = true,
-                SkipTaskbar = true,
-                Icon = Path.Combine(AssetsPath, "app-icon-l.ico")
+                SkipTaskbar = false,
+                Icon = Path.Combine(AssetsPath, "app-icon.png")
             });
 
             Electron.NativeTheme.SetThemeSource(ThemeSourceMode.System);
 
-            if (!WebHostEnvironment.IsDevelopment())
-            {
-                await ConfigureTrayIcon(AssetsPath);
-                ConfigureStartup();
-            }
+            ConfigureTrayIcon(AssetsPath);
+            ConfigureStartup();
 
             MainWindow.OnBlur += OnLostFocus;
 
@@ -201,7 +196,7 @@ namespace BlazorElectronToolbar.Server
             }
         }
 
-        async Task ConfigureTrayIcon(string RootPath)
+        void ConfigureTrayIcon(string RootPath)
         {
             Electron.Tray.SetTitle("Z-Toolbar");
             Electron.Tray.SetToolTip("Z-Toolbar");
@@ -215,15 +210,8 @@ namespace BlazorElectronToolbar.Server
                     Visible = true
                 }};
 
-            //Since chrome follows the system chosen theme, we could guess the system theme from the chrome theme.
-            if (await Electron.NativeTheme.ShouldUseDarkColorsAsync())
-            {
-                Electron.Tray.Show(Path.Combine(RootPath, "app-icon-l.png"), menu);
-            }
-            else
-            {
-                Electron.Tray.Show(Path.Combine(RootPath, "app-icon-d.png"), menu);
-            }
+            var iconPath = Path.Combine(RootPath, "tray-icon.ico");
+            Electron.Tray.Show(iconPath, menu);
         }
 
         void ConfigureStartup()
