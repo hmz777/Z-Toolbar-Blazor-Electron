@@ -98,7 +98,7 @@ namespace BlazorElectronToolbar.Server
                 Fullscreenable = false,
                 Movable = false,
                 Transparent = true,
-                SkipTaskbar = false,
+                SkipTaskbar = !WebHostEnvironment.IsDevelopment(),
                 Icon = Path.Combine(AssetsPath, "app-icon.png")
             });
 
