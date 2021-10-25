@@ -19,6 +19,27 @@ Z-Toolbar is a productivity toolbar written in Electron.NET (.NET5) and Blazor W
 - Select all with <kbd>Ctrl + A</kbd>.
 - When showing file or folder info you can copy a specific row of info by pressing the row.
 
+## Start the Application
+
+To start the application make sure you have installed the "[ElectronNET.CLI](https://www.nuget.org/packages/ElectronNET.CLI/)" packages as global tool:
+
+```
+dotnet tool install ElectronNET.CLI -g
+```
+Then, to start the application run the following command in the `Server` project folder:
+```
+electronize start
+```
+
+## Build
+You can build this project to a packaged installer by using this command in the `Server` project folder:
+
+```
+electronize build /target "win10-x86" /electron-arch ia32 /PublishSingleFile false /PublishReadyToRun false
+```
+The output files can be found here:
+`Server Project Folder\bin\Desktop`
+
 ## Demo
 ![boUPt0DTkD](https://user-images.githubusercontent.com/38891601/138537606-1f4ea4ef-17d0-4f80-86fb-abd2897b86b3.gif)
 
