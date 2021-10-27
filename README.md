@@ -41,5 +41,4 @@ The output files can be found here:
 `Server Project Folder\bin\Desktop`
 
 ## Demo
-![boUPt0DTkD](https://user-images.githubusercontent.com/38891601/138537606-1f4ea4ef-17d0-4f80-86fb-abd2897b86b3.gif)
 
