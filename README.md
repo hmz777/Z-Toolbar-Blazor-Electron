@@ -3,11 +3,11 @@ Z-Toolbar is a productivity toolbar written in Electron.NET (.NET5) and Blazor W
 
 ## Features:
 - Global hook hotkey combination <kbd>Windows + \`</kbd> for showing and hiding the app.
-- Tray icon with an option for exit (app not visible in taskbar).
+- Tray icon with an option for exit (app not visible in the taskbar).
 - Add files and/or folders by drag and drop functionality.
 - Options include:
     - Run
-    - Show info (for showing file info like name, path and id (might add more info later))
+    - Show info (for showing file info like name, path, and id (might add more info later))
     - Show in explorer
     - Remove
     - Open dev tools
@@ -21,7 +21,7 @@ Z-Toolbar is a productivity toolbar written in Electron.NET (.NET5) and Blazor W
 
 ## Start the Application
 
-To start the application make sure you have installed the "[ElectronNET.CLI](https://www.nuget.org/packages/ElectronNET.CLI/)" packages as global tool:
+To start the application make sure you have installed the "[ElectronNET.CLI](https://www.nuget.org/packages/ElectronNET.CLI/)" packages as a global tool:
 
 ```
 dotnet tool install ElectronNET.CLI -g
